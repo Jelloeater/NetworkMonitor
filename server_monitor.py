@@ -9,7 +9,8 @@ import logging
 import argparse
 from time import sleep
 import subprocess
-import db_controller
+
+from Loggers import database
 
 
 __author__ = "Jesse S"
@@ -94,12 +95,12 @@ def main():
         mode.list_servers()
 
     if args.remove_password_store:
-        db_controller.db_helper().clear_password_store()
+        database.db_helper().clear_password_store()
 
     if args.configure_db_settings:
-        db_controller.db_helper().configure()
+        database.db_helper().configure()
 
-    db_controller.db_helper().test_db_setup()
+    database.db_helper().test_db_setup()
 
     # Magic starts here
     if args.monitor:
@@ -152,11 +153,11 @@ class server_logger(mc):
         players_list = json.dumps([])
         # players_list = json.dumps(self.get_player_list())
 
-        conn, cur = db_controller.db_access().open_connection()
+        conn, cur = database.db_access().open_connection()
         cur.execute(
             'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
             (datetime.now(), self.ping[3], players_list, self.server_name))
-        db_controller.db_access.close_connection(conn, cur)
+        database.db_access.close_connection(conn, cur)
 
     def get_player_list(self):
         players_list = []
