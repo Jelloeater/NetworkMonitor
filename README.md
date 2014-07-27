@@ -25,3 +25,4 @@ See Licence file
 -   Python 2.7
 -   Keyring (https://bitbucket.org/kang/python-keyring-lib) (included)
 -   pg8000 (http://pybrary.net/pg8000/) (included)
+-   SimpleMonitor (http://jamesoff.net/site/code/simplemonitor)
