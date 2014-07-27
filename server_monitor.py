@@ -38,9 +38,14 @@ def main():
                                    action="store_true")
     multi_server_group = parser.add_argument_group('Multi Server Mode')
     multi_server_group.add_argument("-m",
-                                    "--multi",
+                                    "--monitor",
                                     help="Multi server watch mode",
                                     action="store_true")
+    multi_server_group.add_argument("-e",
+                                    "--editServerList",
+                                    help="Edit the server watch list",
+                                    action="store_true")
+
 
     db_group = parser.add_argument_group('Database Settings')
     db_group.add_argument("-c",
@@ -58,14 +63,6 @@ def main():
                         type=int,
                         default=60,
                         help="Wait x second between checks (ex. 60)")
-    parser.add_argument('-b',
-                        dest='base_directory',
-                        default='/var/games/minecraft',
-                        help='Change MineOS Server Base Location (ex. /var/games/minecraft)')
-    parser.add_argument('-o',
-                        dest='owner',
-                        default='mc',
-                        help='Sets the owner of the Minecraft servers (ex mc)')
     parser.add_argument("-l",
                         "--list",
                         action="store_true",
@@ -86,7 +83,7 @@ def main():
                             format="[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(lineno)s)",
                             level=logging.WARNING)
 
-    mode = modes(base_directory=args.base_directory, owner=args.owner, sleep_delay=args.delay)
+    mode = modes(sleep_delay=args.delay)
     # Create new mode object for flow, I'll buy that :)
 
     if len(sys.argv) == 1:  # Displays help and lists servers (to help first time users)
@@ -105,16 +102,16 @@ def main():
     db_controller.db_helper().test_db_setup()
 
     # Magic starts here
-    if args.multi:
+    if args.monitor:
         mode.multi_server()
 
 
 class modes(object):  # Uses new style classes
-    def __init__(self, base_directory, owner, sleep_delay):
-        self.base_directory = base_directory
+    def __init__(self, sleep_delay):
         self.sleep_delay = sleep_delay
-        self.owner = owner  # We NEED to specify owner or we get a error in the webGUI during start/stop from there
-        logging.debug("Modes obj created" + str(self.base_directory) + '  ' + str(self.owner))
+        self.server_list = []
+        # TODO Load server List from JSON
+
 
     def sleep(self):
         try:
@@ -124,6 +121,7 @@ class modes(object):  # Uses new style classes
             sys.exit(0)
 
     def list_servers(self):
+        print("Servers:")
         pass
         #TODO Return list of servers
 
@@ -133,10 +131,9 @@ class modes(object):  # Uses new style classes
         print("Press Ctrl-C to quit")
 
         while True:
-            server_list = mc.list_servers(self.base_directory)
-            logging.debug(server_list)
+            logging.debug(self.server_list)
 
-            for i in server_list:
+            for i in self.server_list:
                 server_logger(server_name=i, owner=self.owner, base_directory=self.base_directory).check_server_status()
             self.sleep()
 
