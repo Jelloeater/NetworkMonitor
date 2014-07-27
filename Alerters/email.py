@@ -20,7 +20,7 @@ class gmailSettings():
 
 class SettingsHelper(gmailSettings):
     SETTINGS_FILE_PATH = "email_settings.json"
-    KEYRING_APP_ID = 'mineOSPlayerStats_gmail'
+    KEYRING_APP_ID = 'NetworkMonitor_email'
 
     @classmethod
     def loadSettings(cls):

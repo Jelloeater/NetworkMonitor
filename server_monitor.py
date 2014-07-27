@@ -11,6 +11,7 @@ from time import sleep
 import subprocess
 
 from Loggers import database
+from Monitors import network
 
 
 __author__ = "Jesse S"
@@ -110,9 +111,8 @@ def main():
 class modes(object):  # Uses new style classes
     def __init__(self, sleep_delay):
         self.sleep_delay = sleep_delay
-        self.server_list = []
+        self.server_list = ['127.0.0.1']
         # TODO Load server List from JSON
-
 
     def sleep(self):
         try:
@@ -123,9 +123,8 @@ class modes(object):  # Uses new style classes
 
     def list_servers(self):
         print("Servers:")
-        pass
-        #TODO Return list of servers
-
+        for i in self.server_list:
+            print(i)
 
     def multi_server(self):
         print("Multi Server mode")
@@ -133,56 +132,36 @@ class modes(object):  # Uses new style classes
 
         while True:
             logging.debug(self.server_list)
-
             for i in self.server_list:
-                server_logger(server_name=i, owner=self.owner, base_directory=self.base_directory).check_server_status()
+                server_logger(ip_address=i).check_server_status()
             self.sleep()
 
 
-class server_logger(mc):
-    def check_server_status(self):
-        logging.info("Checking server {0}".format(self.server_name))
-        if self.up and int(self.ping[3]) > 0:  # Server is up and has players
-            self.log_active_players_to_db()
+class server_logger():
+    def __init__(self, ip_address=None):
+        self.ip_address = ip_address
+        self.hostname = ''
 
-    def log_active_players_to_db(self):
+    def check_server_status(self):
+        network.MonitorHost(host='192.168.1.1').run_test()
+        #TODO Remove test
+
+        # nm = self.PortScanner()
+        # nm.scan('127.0.0.1')
+
+        pass
+
+    def log_errors_to_db(self):
         """ Takes active players and logs list to db with timestamp """
-        logging.debug('# of players: ' + str(self.ping[3]))  # number of players
-        logging.debug('PID: ' + str(self.screen_pid))
 
         players_list = json.dumps([])
         # players_list = json.dumps(self.get_player_list())
 
-        conn, cur = database.db_access().open_connection()
-        cur.execute(
-            'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
-            (datetime.now(), self.ping[3], players_list, self.server_name))
-        database.db_access.close_connection(conn, cur)
-
-    def get_player_list(self):
-        players_list = []
-
-        logging.debug(os.getcwd())
-        # FIXME Command not working, but attaching to screen
-        # See http://www.cyberciti.biz/faq/python-run-external-command-and-get-output/
-        cmd = 'screen -d -m -r ' + str(self.screen_pid) + ' "/list"'  # Breaks screen on exit, stuck in loop
-        # cmd = 'ls'
-        logging.debug(subprocess.check_output(cmd))
-        cmd_exit = 'screen detach'
-
-        subprocess.check_output(cmd_exit)
-
-        # os.system(cmd)
-        # process = subprocess.Popen(cmd)
-        # (output, err) = process.communicate()
-        # logging.debug('Output: ' + str(output))
-        # logging.debug('Err: ' + str(err))
-        # status_code = process.wait()
-        # logging.debug('Status Code: ' + str(status_code))
-        # process.wait(5)
-
-        return players_list
-
+        # conn, cur = database.db_access().open_connection()
+        # cur.execute(
+        #     'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
+        #     (datetime.now(), self.ping[3], players_list, self.server_name))
+        # database.db_access.close_connection(conn, cur)
 
 if __name__ == "__main__":
     main()

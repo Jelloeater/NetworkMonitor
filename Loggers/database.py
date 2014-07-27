@@ -20,12 +20,12 @@ class db_settings():
     # Password should be stored with keyring
     DB_HOST = '127.0.0.1'
     PORT = 5432
-    DATABASE = 'player_stats'
+    DATABASE = 'network_monitor'
 
 
 class SettingsHelper(db_settings):
     SETTINGS_FILE_PATH = "database_settings.json"
-    KEYRING_APP_ID = 'mineOSPlayerStats'
+    KEYRING_APP_ID = 'NetworkMonitor_db'
 
     @classmethod
     def loadSettings(cls):

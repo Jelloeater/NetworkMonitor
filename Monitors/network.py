@@ -8,10 +8,9 @@ import os
 import socket
 import datetime
 
-from monitor import Monitor
 
 
-class MonitorHTTP(Monitor):
+class MonitorHTTP():
     """Check an HTTP server is working right.
     
     We can either check that we get a 200 OK back, or we can check for a regexp match in the page.
@@ -25,7 +24,6 @@ class MonitorHTTP(Monitor):
     type = "http"
 
     def __init__(self, name, config_options):
-        Monitor.__init__(self, name, config_options)
         try:
             url = config_options["url"]
         except:
@@ -107,19 +105,18 @@ class MonitorHTTP(Monitor):
         return (self.url, self.regexp_text, self.allowed_codes)
 
 
-class MonitorTCP(Monitor):
+class MonitorTCP():
     """TCP port monitor"""
 
     host = ""
     port = ""
     type = "tcp"
 
-    def __init__(self, name, config_options):
+    def __init__(self, host, port):
         """Constructor"""
-        Monitor.__init__(self, name, config_options)
         try:
-            host = config_options["host"]
-            port = int(config_options["port"])
+            host = host
+            port = int(port)
         except:
             raise RuntimeError("Required configuration fields missing")
 
@@ -151,7 +148,7 @@ class MonitorTCP(Monitor):
         return (self.host, self.port)
 
 
-class MonitorHost(Monitor):
+class MonitorHost():
     """Ping a host to make sure it's up"""
 
     host = ""
@@ -160,25 +157,21 @@ class MonitorHost(Monitor):
     type = "host"
     time_regexp = ""
 
-    def __init__(self, name, config_options):
+    def __init__(self, host):
         """
         Note: We use -w/-t on Windows/POSIX to limit the amount of time we wait to 5 seconds.
         This is to stop ping holding things up too much. A machine that can't ping back in <5s is
         a machine in trouble anyway, so should probably count as a failure.
         """
-        Monitor.__init__(self, name, config_options)
-        if self.is_windows(allow_cygwin=True):
-            self.ping_command = "ping -n 1 -w 5000 %s"
-            self.ping_regexp = "Reply from "
-            self.time_regexp = "Average = (?P<ms>\d+)ms"
-        else:
-            self.ping_command = "ping -c1 -t5 %s 2> /dev/null"
-            self.ping_regexp = "bytes from"
-            #XXX this regexp is only for freebsd at the moment; not sure about other platforms
-            #XXX looks like Linux uses this format too
-            self.time_regexp = "min/avg/max/stddev = [\d.]+/(?P<ms>[\d.]+)/"
+
+        self.ping_command = "ping -c1 -t5 %s 2> /dev/null"
+        self.ping_regexp = "bytes from"
+        #XXX this regexp is only for freebsd at the moment; not sure about other platforms
+        #XXX looks like Linux uses this format too
+        self.time_regexp = "min/avg/max/stddev = [\d.]+/(?P<ms>[\d.]+)/"
+
         try:
-            host = config_options["host"]
+            host = host
         except:
             raise RuntimeError("Required configuration fields missing")
         if host == "":
@@ -201,16 +194,13 @@ class MonitorHost(Monitor):
                     if matches:
                         pingtime = matches.group("ms")
         except Exception, e:
-            self.record_fail(e)
+            return False
             pass
         if success:
             if pingtime > 0:
-                self.record_success("%sms" % pingtime)
-            else:
-                self.record_success()
-            return True
-        self.record_fail()
-        return False
+                return "%sms" % pingtime
+        else:
+            return False
 
     def describe(self):
         """Explains what this instance is checking"""
