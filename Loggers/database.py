@@ -133,6 +133,23 @@ class db_helper(db_access):
             logging.warn('email_log already exists')
         db_access.close_connection(conn, cur)
 
+        logging.warning('Creating (' + 'monitor_list' + ') table')
+        DDL_Query = '''
+        CREATE TABLE monitor_list (
+        "index" SERIAL NOT NULL,
+        "ip_address" TEXT,
+        "port" INTEGER ,
+        "url" TEXT,
+        "type" TEXT NOT NULL,
+        CONSTRAINT "monitor_list_pkey"
+        PRIMARY KEY ("index"))'''
+        conn, cur = self.open_connection()
+        try:
+            cur.execute(DDL_Query)
+        except pg8000.errors.ProgrammingError:
+            logging.warn('monitor_list already exists')
+        db_access.close_connection(conn, cur)
+
         # TODO Execute on first run
         # FIXME Create table for hosts to be monitored
 
