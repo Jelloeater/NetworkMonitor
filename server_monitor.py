@@ -138,9 +138,24 @@ class modes(object):  # Uses new style classes
 
 
 class server_logger():
-    def __init__(self, ip_address=None):
+    def __init__(self, ip_address=None, port=None, web_address=None):
         self.ip_address = ip_address
-        self.hostname = ''
+        self.port = port
+        self.web_address = web_address
+
+        if self.ip_address is not None:
+            pass
+            # TODO Host Check
+
+        if self.port is not None:
+            pass
+            # TODO TCP Check
+
+        if self.web_address is not None:
+            pass
+            # TODO HTTP Check
+
+        # TODO Pick either TCP, Ping host, or check web, depending on args
 
     def check_server_status(self):
         network.MonitorHost(host='192.168.1.1').run_test()
@@ -152,7 +167,7 @@ class server_logger():
         pass
 
     def log_errors_to_db(self):
-        """ Takes active players and logs list to db with timestamp """
+        """ Takes error and logs list to db with timestamp """
 
         players_list = json.dumps([])
         # players_list = json.dumps(self.get_player_list())

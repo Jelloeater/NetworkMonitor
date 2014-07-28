@@ -134,6 +134,7 @@ class db_helper(db_access):
         db_access.close_connection(conn, cur)
 
         # TODO Execute on first run
+        # FIXME Create table for hosts to be monitored
 
     def test_db_setup(self):
         """ Gets run on startup """
