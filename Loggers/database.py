@@ -89,35 +89,48 @@ class db_helper(db_access):
             try:
                 logging.info("Check if Database Exists")
                 connection = pg8000.DBAPI.connect(
-                    user=self.USERNAME, password=self.PASSWORD, host=self.DB_HOST, database='template1')
+                    user=self.USERNAME, password=self.PASSWORD, host=self.DB_HOST, database='template1')  # Default DB
                 cursor = connection.cursor()
                 connection.autocommit = True
-                cursor.execute('''CREATE DATABASE player_stats''')
+                cursor.execute('''CREATE DATABASE network_monitor''')
                 connection.close()
-                logging.info('Created Database')
+                logging.info('Created Database: ' + self.DATABASE)
             except errors.ProgrammingError:
-                logging.warn('Database (Player_Stats) Already Exists')
+                logging.warn('Database (' + self.DATABASE + ') Already Exists')
         except pg8000.errors.InterfaceError:
             logging.error("DB Connection Interface Error")
             print('Please check the user settings')
 
-
     def __create_table(self):
-        logging.warning('Creating player_activity table')
+        logging.warning('Creating (' + 'server_stats' + ') table')
         DDL_Query = '''
-        CREATE TABLE player_activity (
-        "Index" SERIAL NOT NULL,
-        "Time_Stamp" TIMESTAMP(0) NOT NULL,
-        "Player_Count" INT4 NOT NULL,
-        "Player_Names" TEXT NOT NULL,
-        "Server_Name" TEXT NOT NULL,
-        CONSTRAINT "player_activity_pkey"
-        PRIMARY KEY ("Index"))'''
+        CREATE TABLE server_stats (
+        "index" SERIAL NOT NULL,
+        "time_stamp" TIMESTAMP(0) NOT NULL,
+        "ip_hostname" TEXT NOT NULL,
+        "service_type" TEXT NOT NULL,
+        CONSTRAINT "server_stats_pkey"
+        PRIMARY KEY ("index"))'''
         conn, cur = self.open_connection()
         try:
             cur.execute(DDL_Query)
         except pg8000.errors.ProgrammingError:
-            logging.warn('player_activity already exists')
+            logging.warn('server_stats already exists')
+        db_access.close_connection(conn, cur)
+
+        logging.warning('Creating (' + 'email_log' + ') table')
+        DDL_Query = '''
+        CREATE TABLE email_log (
+        "index" SERIAL NOT NULL,
+        "time_stamp" TIMESTAMP(0) NOT NULL,
+        "to_address" TEXT NOT NULL,
+        CONSTRAINT "email_log_pkey"
+        PRIMARY KEY ("index"))'''
+        conn, cur = self.open_connection()
+        try:
+            cur.execute(DDL_Query)
+        except pg8000.errors.ProgrammingError:
+            logging.warn('email_log already exists')
         db_access.close_connection(conn, cur)
 
         # TODO Execute on first run
@@ -131,14 +144,14 @@ class db_helper(db_access):
             logging.info('Testing Database Connection')
             conn, cur = self.open_connection()
             try:
-                cur.execute('SELECT * FROM player_activity')
+                cur.execute('SELECT * FROM server_stats')
                 db_access.close_connection(conn, cur)
                 logging.info('Connection Successful')
             except pg8000.errors.ProgrammingError:
                 logging.error('Cannot find player_activity table')
                 self.__create_table()
         except pg8000.errors.ProgrammingError:
-            logging.error('Cannot find player_stats database')
+            logging.error('Cannot find '+self.DATABASE+' database')
             self.__create_database()
             self.__create_table()
             try:
