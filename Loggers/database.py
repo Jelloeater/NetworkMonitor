@@ -101,7 +101,7 @@ class db_helper(db_access):
             logging.error("DB Connection Interface Error")
             print('Please check the user settings')
 
-    def __create_table(self):
+    def __create_tables(self):
         logging.warning('Creating (' + 'server_stats' + ') table')
         DDL_Query = '''
         CREATE TABLE server_stats (
@@ -133,6 +133,32 @@ class db_helper(db_access):
             logging.warn('email_log already exists')
         db_access.close_connection(conn, cur)
 
+
+
+        logging.warning('Creating (' + 'valid_types' + ') table')
+        DDL_Query = '''
+        CREATE TABLE valid_types (
+        "type" TEXT,
+        CONSTRAINT "valid_types_pkey"
+        PRIMARY KEY ("type"))'''
+        # Checks to make sure the type in valid on INSERT
+
+        conn, cur = self.open_connection()
+        try:
+            cur.execute(DDL_Query)
+        except pg8000.errors.ProgrammingError:
+            logging.warn('monitor_list already exists')
+        db_access.close_connection(conn, cur)
+
+        logging.warning('Adding ' + 'valid_types' + ' to table')
+        DDL_Query = '''INSERT INTO "valid_types" VALUES ('host'),('tcp'),('url');'''
+        conn, cur = self.open_connection()
+        try:
+            cur.execute(DDL_Query)
+        except pg8000.errors.ProgrammingError:
+            logging.warn('types already inserted')
+        db_access.close_connection(conn, cur)
+
         logging.warning('Creating (' + 'monitor_list' + ') table')
         DDL_Query = '''
         CREATE TABLE monitor_list (
@@ -143,6 +169,21 @@ class db_helper(db_access):
         "type" TEXT NOT NULL,
         CONSTRAINT "monitor_list_pkey"
         PRIMARY KEY ("index"))'''
+        # Checks to make sure the type in valid on INSERT
+
+        conn, cur = self.open_connection()
+        try:
+            cur.execute(DDL_Query)
+        except pg8000.errors.ProgrammingError:
+            logging.warn('monitor_list already exists')
+        db_access.close_connection(conn, cur)
+
+
+        logging.warning('Enforcing foreign key on (' + 'monitor_list' + ') table')
+        DDL_Query = '''ALTER TABLE "monitor_list" ADD FOREIGN KEY ("type")
+                       REFERENCES "valid_types" ("type") ON DELETE NO ACTION ON UPDATE NO ACTION;'''
+        # Checks to make sure the type in valid on INSERT
+
         conn, cur = self.open_connection()
         try:
             cur.execute(DDL_Query)
@@ -167,11 +208,11 @@ class db_helper(db_access):
                 logging.info('Connection Successful')
             except pg8000.errors.ProgrammingError:
                 logging.error('Cannot find player_activity table')
-                self.__create_table()
+                self.__create_tables()
         except pg8000.errors.ProgrammingError:
             logging.error('Cannot find '+self.DATABASE+' database')
             self.__create_database()
-            self.__create_table()
+            self.__create_tables()
             try:
                 self.test_db_setup()  # Retry test_db_setup
             except pg8000.errors.ProgrammingError:
