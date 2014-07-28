@@ -102,6 +102,9 @@ class db_helper(db_access):
             print('Please check the user settings')
 
     def __create_tables(self):
+        """ Creates all the necessary tables for the program to function """
+
+        # Generates server_stats table
         logging.warning('Creating (' + 'server_stats' + ') table')
         DDL_Query = '''
         CREATE TABLE server_stats (
@@ -118,6 +121,7 @@ class db_helper(db_access):
             logging.warn('server_stats already exists')
         db_access.close_connection(conn, cur)
 
+        # Generates email_log table
         logging.warning('Creating (' + 'email_log' + ') table')
         DDL_Query = '''
         CREATE TABLE email_log (
@@ -134,7 +138,7 @@ class db_helper(db_access):
         db_access.close_connection(conn, cur)
 
 
-
+        # Generates valid_types table for foreign key constraints
         logging.warning('Creating (' + 'valid_types' + ') table')
         DDL_Query = '''
         CREATE TABLE valid_types (
@@ -150,6 +154,7 @@ class db_helper(db_access):
             logging.warn('monitor_list already exists')
         db_access.close_connection(conn, cur)
 
+        # Adds valid types for foreign key validity checking in monitor_list
         logging.warning('Adding ' + 'valid_types' + ' to table')
         DDL_Query = '''INSERT INTO "valid_types" VALUES ('host'),('tcp'),('url');'''
         conn, cur = self.open_connection()
@@ -159,6 +164,7 @@ class db_helper(db_access):
             logging.warn('types already inserted')
         db_access.close_connection(conn, cur)
 
+        # Generates monitor_list table
         logging.warning('Creating (' + 'monitor_list' + ') table')
         DDL_Query = '''
         CREATE TABLE monitor_list (
@@ -178,7 +184,7 @@ class db_helper(db_access):
             logging.warn('monitor_list already exists')
         db_access.close_connection(conn, cur)
 
-
+        # Alters monitor_list by adding foreign key constraint from valid_types table
         logging.warning('Enforcing foreign key on (' + 'monitor_list' + ') table')
         DDL_Query = '''ALTER TABLE "monitor_list" ADD FOREIGN KEY ("type")
                        REFERENCES "valid_types" ("type") ON DELETE NO ACTION ON UPDATE NO ACTION;'''
@@ -192,7 +198,6 @@ class db_helper(db_access):
         db_access.close_connection(conn, cur)
 
         # TODO Execute on first run
-        # FIXME Create table for hosts to be monitored
 
     def test_db_setup(self):
         """ Gets run on startup """
