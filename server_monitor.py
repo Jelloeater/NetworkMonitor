@@ -141,34 +141,24 @@ class modes(object):  # Uses new style classes
 class server_logger():
     """ self.variable same as monitor_list columns"""
     def __init__(self, monitor_row):
-        # FIXME Add lines to take db info into  self.vars
-        self.host = ''
-        self.port = 0
-        self.url = ''
-        self.service_type = ''
+        self.host = monitor_row[1]
+        self.port = monitor_row[2]
+        self.url = monitor_row[3]
+        self.service_type = monitor_row[4]
 
     def check_server_status(self):
         # TODO Pick either TCP, Ping host, or check web, depending on args
         if self.service_type == 'url':
-            pass
+            logging.debug("Checking URL: " + str(self.url))
             # TODO HTTP URL Check
 
         if self.service_type == 'host':
-            pass
+            logging.debug("Checking host: " + str(self.host))
             # TODO Host Check
 
         if self.service_type == 'tcp':
-            pass
+            logging.debug("Checking TCP Service: " + str(self.host) + ' port: ' + str(self.port))
             # TODO TCP Check
-
-
-        network.MonitorHost(host='192.168.1.1').run_test()
-        #TODO Remove test
-
-        # nm = self.PortScanner()
-        # nm.scan('127.0.0.1')
-
-        pass
 
     def log_errors_to_db(self):
         """ Takes error and logs list to db with timestamp """
