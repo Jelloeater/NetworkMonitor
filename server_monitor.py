@@ -122,7 +122,7 @@ class modes(object):  # Uses new style classes
 
     def list_servers(self):
         print("Servers:")
-        self.server_list = db_helpers.get_server_list()
+        self.server_list = db_helpers.monitor_list.get_server_list()
         for i in self.server_list:
             print(i)
 
@@ -131,7 +131,7 @@ class modes(object):  # Uses new style classes
         print("Press Ctrl-C to quit")
 
         while True:
-            self.server_list = db_helpers.get_server_list()  # Gets server list on each refresh, in-case of updates
+            self.server_list = db_helpers.monitor_list.get_server_list()  # Gets server list on each refresh, in-case of updates
             logging.debug(self.server_list)
             for i in self.server_list:
                 server_logger(i).check_server_status()  # Send each row of monitor_list to logic gate
