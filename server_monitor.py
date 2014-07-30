@@ -154,6 +154,7 @@ class server_logger():
 
         if self.service_type == 'host':
             logging.debug("Checking host: " + str(self.host))
+            print(network.MonitorHost(self.host).run_test())
             # TODO Host Check
 
         if self.service_type == 'tcp':
