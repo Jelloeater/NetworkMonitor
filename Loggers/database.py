@@ -172,30 +172,40 @@ class db_helper(db_access):
         "ip_address" TEXT,
         "port" INTEGER ,
         "url" TEXT,
-        "type" TEXT NOT NULL,
+        "service_type" TEXT NOT NULL,
         CONSTRAINT "monitor_list_pkey"
         PRIMARY KEY ("index"))'''
         # Checks to make sure the type in valid on INSERT
-
         conn, cur = self.open_connection()
         try:
             cur.execute(DDL_Query)
         except pg8000.errors.ProgrammingError:
             logging.warn('monitor_list already exists')
+        db_access.close_connection(conn, cur)
+
+        # Alters server_stats by adding foreign key constraint from valid_types table
+        logging.warning('Enforcing foreign key on (' + 'server_stats' + ') table')
+        DDL_Query = '''ALTER TABLE "server_stats" ADD FOREIGN KEY ("service_type")
+                       REFERENCES "valid_types" ("type") ON DELETE NO ACTION ON UPDATE NO ACTION;'''
+        conn, cur = self.open_connection()
+        try:
+            cur.execute(DDL_Query)
+        except pg8000.errors.ProgrammingError:
+            logging.warn('server_stats already has foreign key')
         db_access.close_connection(conn, cur)
 
         # Alters monitor_list by adding foreign key constraint from valid_types table
         logging.warning('Enforcing foreign key on (' + 'monitor_list' + ') table')
-        DDL_Query = '''ALTER TABLE "monitor_list" ADD FOREIGN KEY ("type")
-                       REFERENCES "valid_types" ("type") ON DELETE NO ACTION ON UPDATE NO ACTION;'''
-        # Checks to make sure the type in valid on INSERT
-
+        DDL_Query = '''ALTER TABLE "monitor_list" ADD FOREIGN KEY ("service_type")
+        REFERENCES "valid_types" ("type") ON DELETE NO ACTION ON UPDATE NO ACTION;'''
         conn, cur = self.open_connection()
         try:
             cur.execute(DDL_Query)
         except pg8000.errors.ProgrammingError:
-            logging.warn('monitor_list already exists')
+            logging.warn('monitor_list already has foreign key')
         db_access.close_connection(conn, cur)
+
+
 
         # TODO Execute on first run
 
