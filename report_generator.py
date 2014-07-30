@@ -7,8 +7,7 @@ import logging
 import argparse
 
 from Alerters.email import gmail
-
-from Loggers import database
+from Database import db_controller
 
 
 __author__ = "Jesse S"
@@ -73,10 +72,10 @@ def main():
         sys.exit(1)
 
     if args.remove_db_password_store:
-        database.db_helper().clear_password_store()
+        db_controller.db_helper().clear_password_store()
 
     if args.configure_db_settings:
-        database.db_helper().configure()
+        db_controller.db_helper().configure()
 
     if args.remove_email_password_store:
         gmail().clear_password_store()
@@ -86,7 +85,7 @@ def main():
 
     # Magic starts here
     if args.generate_report:
-        database.db_helper().test_db_setup()
+        db_controller.db_helper().test_db_setup()
         gmail().test_login()
         action.generate_report()
 
@@ -94,12 +93,12 @@ def main():
 class action:
     @staticmethod
     def generate_report(number_of_days=7):
-        conn, cur = database.db_access().open_connection()
+        conn, cur = db_controller.db_access().open_connection()
         # TODO Rewrite table query
         # query = '''SELECT * FROM player_activity WHERE "Time_Stamp" >= (now() - '{0} day'::INTERVAL);'''
         # cur.execute(query.format(number_of_days))
         data = cur.fetchall()
-        database.db_access.close_connection(conn, cur)
+        db_controller.db_access.close_connection(conn, cur)
         logging.debug('DB dump')
         logging.debug(data)
 

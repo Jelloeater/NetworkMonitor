@@ -1,16 +1,14 @@
 #!/usr/bin/env python2.7
 """A python project for monitoring network resources
 """
-from datetime import datetime
 import json
 import sys
-import os
 import logging
 import argparse
 from time import sleep
-import subprocess
 
-from Loggers import database
+from Database import db_controller
+from Database import db_helpers
 from Monitors import network
 
 
@@ -96,12 +94,12 @@ def main():
         mode.list_servers()
 
     if args.remove_password_store:
-        database.db_helper().clear_password_store()
+        db_controller.db_helper().clear_password_store()
 
     if args.configure_db_settings:
-        database.db_helper().configure()
+        db_controller.db_helper().configure()
 
-    database.db_helper().test_db_setup()
+    db_controller.db_helper().test_db_setup()
 
     # Magic starts here
     if args.monitor:
@@ -111,7 +109,8 @@ def main():
 class modes(object):  # Uses new style classes
     def __init__(self, sleep_delay):
         self.sleep_delay = sleep_delay
-        self.server_list = ['127.0.0.1']
+        self.server_list = []
+
         # TODO Load server List from JSON
 
     def sleep(self):
@@ -123,6 +122,7 @@ class modes(object):  # Uses new style classes
 
     def list_servers(self):
         print("Servers:")
+        self.server_list = db_helpers.get_server_list()
         for i in self.server_list:
             print(i)
 
@@ -131,33 +131,37 @@ class modes(object):  # Uses new style classes
         print("Press Ctrl-C to quit")
 
         while True:
+            self.server_list = db_helpers.get_server_list()  # Gets server list on each refresh, in-case of updates
             logging.debug(self.server_list)
             for i in self.server_list:
-                server_logger(ip_address=i).check_server_status()
+                server_logger(i).check_server_status()  # Send each row of monitor_list to logic gate
             self.sleep()
 
 
 class server_logger():
-    def __init__(self, ip_address=None, port=None, web_address=None):
-        self.ip_address = ip_address
-        self.port = port
-        self.web_address = web_address
+    """ self.variable same as monitor_list columns"""
+    def __init__(self, monitor_row):
+        # FIXME Add lines to take db info into  self.vars
+        self.host = ''
+        self.port = 0
+        self.url = ''
+        self.service_type = ''
 
-        if self.ip_address is not None:
+    def check_server_status(self):
+        # TODO Pick either TCP, Ping host, or check web, depending on args
+        if self.service_type == 'url':
+            pass
+            # TODO HTTP URL Check
+
+        if self.service_type == 'host':
             pass
             # TODO Host Check
 
-        if self.port is not None:
+        if self.service_type == 'tcp':
             pass
             # TODO TCP Check
 
-        if self.web_address is not None:
-            pass
-            # TODO HTTP Check
 
-        # TODO Pick either TCP, Ping host, or check web, depending on args
-
-    def check_server_status(self):
         network.MonitorHost(host='192.168.1.1').run_test()
         #TODO Remove test
 

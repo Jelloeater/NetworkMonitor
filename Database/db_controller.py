@@ -51,7 +51,7 @@ class db_access(SettingsHelper, object):
         self.PASSWORD = keyring.get_password(self.KEYRING_APP_ID, self.USERNAME)  # Loads password from secure storage
 
     def open_connection(self):
-        """ Returns connection & cursor"""
+        """ Returns connection, cursor"""
         connection = pg8000.DBAPI.connect(
             user=self.USERNAME,
             password=self.PASSWORD,
@@ -64,6 +64,7 @@ class db_access(SettingsHelper, object):
 
     @staticmethod
     def close_connection(connection, cursor):
+        """ Takes connection, cursor """
         try:
             cursor.close()
         except pg8000.errors.ProgrammingError:
