@@ -150,15 +150,20 @@ class server_logger():
         # TODO Pick either TCP, Ping host, or check web, depending on args
         if self.service_type == 'url':
             logging.debug("Checking URL: " + str(self.url))
+            x = network.MonitorHTTP(self.url).run_test()
+            print(x)
             # TODO HTTP URL Check
 
         if self.service_type == 'host':
             logging.debug("Checking host: " + str(self.host))
-            print(network.MonitorHost(self.host).run_test())
+            x = network.MonitorHost(self.host).run_test()
+            print(x)
             # TODO Host Check
 
         if self.service_type == 'tcp':
             logging.debug("Checking TCP Service: " + str(self.host) + ' port: ' + str(self.port))
+            x = network.MonitorTCP(host=self.host, port=str(self.port)+',').run_test()
+            print(x)
             # TODO TCP Check
 
     def log_errors_to_db(self):

@@ -1,9 +1,10 @@
 # NetworkMonitor
 Monitor Network Services and Status, Send Alerts, and Log Data to a DB. Neat and Easy.
-Comes in two parts:
+Comes in three parts:
 
 -   A monitor
 -   A report generator (should be scheduled using cron or a similar service).
+-   A database front end (for configuring monitoring lists)
 
 ## Setup
 Configure a PostgreSQL Server with remote DB access (if you just want to use localhost, then skip this). 
@@ -21,8 +22,14 @@ For help just run with -h
 See Licence file
 
 ## Dependency's
-
+### Applications
 -   Python 2.7
+-   N-map (http://nmap.org)
+
+### Libs
 -   Keyring (https://bitbucket.org/kang/python-keyring-lib) (included)
 -   pg8000 (http://pybrary.net/pg8000/) (included)
--   SimpleMonitor (http://jamesoff.net/site/code/simplemonitor)
+-   python-nmap (http://xael.org/norman/python/python-nmap/)
+
+# Credits
+-   SimpleMonitor (http://jamesoff.net/site/code/simplemonitor) for framework and inspiration
