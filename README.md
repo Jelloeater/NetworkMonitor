@@ -30,6 +30,7 @@ See Licence file
 -   Keyring (https://bitbucket.org/kang/python-keyring-lib) (included)
 -   pg8000 (http://pybrary.net/pg8000/) (included)
 -   python-nmap (http://xael.org/norman/python/python-nmap/)
+-   gmail (https://pypi.python.org/pypi/gmail/0.5)
 
 # Credits
 -   SimpleMonitor (http://jamesoff.net/site/code/simplemonitor) for framework and inspiration

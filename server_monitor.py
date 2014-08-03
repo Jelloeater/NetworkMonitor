@@ -76,7 +76,7 @@ def main():
     parser.add_argument("-l",
                         "--list",
                         action="store_true",
-                        help="List MineOS Servers")
+                        help="List Servers")
     parser.add_argument("--debug",
                         action="store_true",
                         help="Debug Mode Logging")
