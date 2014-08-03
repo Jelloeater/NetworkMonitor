@@ -16,6 +16,18 @@ class email_log(object):
         pass
         # TODO Write log info to db
 
+    @staticmethod
+    def email_sent_x_minutes_ago():
+        # FIXME Check time check method
+        minutes_ago = 0
+
+        conn, cur = db_controller.db_access().open_connection()
+        cur.execute(
+            'SELECT * FROM email_log ORDER BY time_stamp DESC LIMIT 1')
+        x = cur.fetchone()
+        db_controller.db_access.close_connection(conn, cur)
+        return minutes_ago
+
 
 class monitor_list(object):
     # TODO maybe move into own module?

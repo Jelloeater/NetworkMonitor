@@ -10,7 +10,9 @@ from time import sleep
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
-from db_helpers import monitor_list
+
+# from Alerters import report_generator
+from Alerters import email
 
 
 __author__ = "Jesse S"
@@ -27,16 +29,6 @@ def main():
                                                  " (http://github.com/Jelloeater/NetworkMonitor)",
                                      version=__version__,
                                      epilog="Please specify action")
-    server_group = parser.add_argument_group('Single Server Mode')
-    server_group.add_argument("-s",
-                              "--single",
-                              action="store",
-                              help="Single server watch mode")
-    interactive_group = parser.add_argument_group('Interactive Mode')
-    interactive_group.add_argument("-i",
-                                   "--interactive",
-                                   help="Interactive menu mode",
-                                   action="store_true")
     multi_server_group = parser.add_argument_group('Multi Server Mode')
     multi_server_group.add_argument("-m",
                                     "--monitor",
@@ -47,14 +39,25 @@ def main():
                                     help="Edit the server watch list",
                                     action="store_true")
 
+    report_group = parser.add_argument_group('Actions')
+    report_group.add_argument("-g",
+                              "--generate_report",
+                              help="Generate Weekly Report",
+                              action="store_true")
+
+    email_group = parser.add_argument_group('E-mail Config')
+    email_group.add_argument("-config_email",
+                             help="Configure email alerts",
+                             action="store_true")
+    email_group.add_argument("-rm_email_pass_store",
+                             help="Removes password stored in system keyring",
+                             action="store_true")
 
     db_group = parser.add_argument_group('Database Settings')
-    db_group.add_argument("-c",
-                          "--configure_db_settings",
+    db_group.add_argument("-config_db",
                           help="Configure database settings",
                           action="store_true")
-    db_group.add_argument("-r",
-                          "--remove_password_store",
+    db_group.add_argument("-rm_db_pass_store",
                           help="Removes password stored in system keyring",
                           action="store_true")
 
@@ -91,18 +94,29 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    # Arg Logic here
     if args.list:
         mode.list_servers()
 
-    if args.remove_password_store:
-        db_controller.db_helper().clear_password_store()
-
-    if args.configure_db_settings:
+    if args.config_db:
         db_controller.db_helper().configure()
 
-    db_controller.db_helper().test_db_setup()
+    if args.rm_db_pass_store:
+        db_controller.db_helper().clear_password_store()
+
+    if args.config_email:
+        email.send_gmail().configure()
+
+    if args.rm_email_pass_store:
+        email.send_gmail().clear_password_store()
 
     # Magic starts here
+    if args.generate_report:
+        db_controller.db_helper().test_db_setup()
+        logging.debug('Testing login')
+        email.send_gmail().test_login()
+        # report_generator.reports.generate_report()
+
     if args.monitor:
         mode.multi_server()
 
@@ -141,6 +155,7 @@ class modes(object):  # Uses new style classes
 
 class server_logger():
     """ self.variable same as monitor_list columns"""
+
     def __init__(self, monitor_row):
         self.sl_host = monitor_row[1]
         self.sl_port = monitor_row[2]
@@ -161,13 +176,12 @@ class server_logger():
 
         if self.sl_service_type == 'tcp':
             logging.debug("Checking TCP Service: " + str(self.sl_host) + ' port: ' + str(self.sl_port))
-            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)+',').run_test()
+            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port) + ',').run_test()
 
         if up_down_flag is False:
-            monitor_list.log_service_down(self)
+            db_helpers.monitor_list.log_service_down(self)
         else:
             logging.debug(self.sl_host + ' is UP')
-
 
 
     def log_errors_to_db(self):
@@ -178,9 +192,10 @@ class server_logger():
 
         # conn, cur = database.db_access().open_connection()
         # cur.execute(
-        #     'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
-        #     (datetime.now(), self.ping[3], players_list, self.server_name))
+        # 'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
+        # (datetime.now(), self.ping[3], players_list, self.server_name))
         # database.db_access.close_connection(conn, cur)
+
 
 if __name__ == "__main__":
     main()

@@ -1,14 +1,12 @@
-import distutils.util
 import getpass
 import json
 import logging
 import os
-import smtplib
-import sys
+
+# import gmail
 
 import keyring
 from keyring.errors import PasswordDeleteError
-from Database import db_helpers
 
 
 __author__ = 'Jesse'
@@ -43,7 +41,7 @@ class SettingsHelper(gmailSettings):
         logging.debug("Settings Saved")
 
 
-class gmail(object, SettingsHelper):
+class send_gmail(object, SettingsHelper):
     """ Lets users send email messages """
     # TODO Maybe implement other mail providers
     def __init__(self):
@@ -51,31 +49,14 @@ class gmail(object, SettingsHelper):
         self.PASSWORD = keyring.get_password(self.KEYRING_APP_ID, self.USERNAME)  # Loads password from secure storage
 
     def test_login(self):
-        try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)  # or port 465 doesn't seem to work!
-            server.ehlo()
-            server.starttls()
-            server.login(self.USERNAME, self.PASSWORD)
-            server.close()
-        except smtplib.SMTPAuthenticationError:
-            print("Username password mismatch")
-            sys.exit(1)
+        logging.critical(str(self.USERNAME) + str(self.PASSWORD))
+        # gmail.GMail(username=self.USERNAME, password=self.PASSWORD)
+        # FIXME Rewrite test method for login check
 
     def send(self, subject, text):
-        message = "\From: {0}\nTo: {1}\nSubject: {2}\n\n{3}".format(self.USERNAME,
-                                                                    ", ".join(self.SEND_ALERT_TO),
-                                                                    subject,
-                                                                    text)
-
         logging.info("Sending email")
-        server = smtplib.SMTP("smtp.gmail.com", 587)  # or port 465 doesn't seem to work!
-        server.ehlo()
-        server.starttls()
-        server.login(self.USERNAME, self.PASSWORD)
-        server.sendmail(self.USERNAME, self.SEND_ALERT_TO, message)
-        server.close()
+        # gmail.GMail(username=self.USERNAME, password=self.PASSWORD).send(gmail.Message(subject=subject, to=self.SEND_ALERT_TO))
         logging.info("Message Sent")
-        db_helpers.email_log.log_email_sent(message)
 
 
     def configure(self):
@@ -116,3 +97,7 @@ class gmail(object, SettingsHelper):
             print("Password removed from Keyring")
         except PasswordDeleteError:
             logging.error("Password cannot be deleted or already has been removed")
+
+
+if __name__ == "__main__":
+    send_gmail().test_login()
