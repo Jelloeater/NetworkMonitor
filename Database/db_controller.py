@@ -170,9 +170,8 @@ class db_helper(db_access):
         DDL_Query = '''
         CREATE TABLE monitor_list (
         "index" SERIAL NOT NULL,
-        "ip_address" TEXT,
+        "hostname" TEXT,
         "port" INTEGER ,
-        "url" TEXT,
         "service_type" TEXT NOT NULL,
         CONSTRAINT "monitor_list_pkey"
         PRIMARY KEY ("index"))'''

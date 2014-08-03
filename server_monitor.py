@@ -143,14 +143,13 @@ class server_logger():
     def __init__(self, monitor_row):
         self.host = monitor_row[1]
         self.port = monitor_row[2]
-        self.url = monitor_row[3]
-        self.service_type = monitor_row[4]
+        self.service_type = monitor_row[3]
 
     def check_server_status(self):
         # TODO Pick either TCP, Ping host, or check web, depending on args
         if self.service_type == 'url':
-            logging.debug("Checking URL: " + str(self.url))
-            x = network.MonitorHTTP(self.url).run_test()
+            logging.debug("Checking URL: " + str(self.host))
+            x = network.MonitorHTTP(self.host).run_test()
             print(x)
             # TODO HTTP URL Check
 
