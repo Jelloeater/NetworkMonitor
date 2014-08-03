@@ -4,6 +4,9 @@ import logging
 import os
 
 # import gmail
+import smtplib
+import sys
+import gmail
 
 import keyring
 from keyring.errors import PasswordDeleteError
@@ -49,13 +52,18 @@ class send_gmail(object, SettingsHelper):
         self.PASSWORD = keyring.get_password(self.KEYRING_APP_ID, self.USERNAME)  # Loads password from secure storage
 
     def test_login(self):
-        logging.critical(str(self.USERNAME) + str(self.PASSWORD))
-        # gmail.GMail(username=self.USERNAME, password=self.PASSWORD)
+        logging.debug(str(self.USERNAME) + str(self.PASSWORD))
+        try:
+            gmail.GMail(username=self.USERNAME, password=self.PASSWORD)
+        except smtplib.SMTPAuthenticationError:
+            logging.critical('Bad gmail login info')
+            sys.exit(1)
         # FIXME Rewrite test method for login check
 
     def send(self, subject, text):
         logging.info("Sending email")
-        # gmail.GMail(username=self.USERNAME, password=self.PASSWORD).send(gmail.Message(subject=subject, to=self.SEND_ALERT_TO))
+        gmail.GMail(username=self.USERNAME, password=self.PASSWORD).send(
+            gmail.Message(subject=subject, to=self.SEND_ALERT_TO))
         logging.info("Message Sent")
 
 

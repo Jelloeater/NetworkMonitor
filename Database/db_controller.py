@@ -4,12 +4,11 @@ import sys
 import json
 import getpass
 
-sys.path.append(os.getcwd() + '/keyring')  # Strange path issue, only appears when run from local console, not IDE
-sys.path.append(os.getcwd() + '/pg8000-master')
 import pg8000
 from pg8000 import errors
 import keyring
 from keyring.errors import PasswordDeleteError
+
 
 __author__ = 'Jesse'
 

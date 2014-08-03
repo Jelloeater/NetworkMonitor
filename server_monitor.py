@@ -1,12 +1,18 @@
 #!/usr/bin/env python2.7
 """A python project for monitoring network resources
 """
-import json
 import sys
+import os
+
+sys.path.append(os.getcwd() + '/keyring')  # Strange path issue, only appears when run from local console, not IDE
+sys.path.append(os.getcwd() + '/pg8000-master')
+sys.path.append(os.getcwd() + '/python-nmap-0.1.4')
+sys.path.append(os.getcwd() + '/gmail-0.5')
+
+import json
 import logging
 import argparse
 from time import sleep
-
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
