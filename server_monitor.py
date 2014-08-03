@@ -6,7 +6,8 @@ import logging
 import argparse
 from time import sleep
 
-from Alerters import email
+# from Alerters import email
+
 from Alerters import report_generator
 from Database import db_controller
 from Database import db_helpers
@@ -47,7 +48,6 @@ def main():
                                     help="Edit the server watch list",
                                     action="store_true")
 
-
     db_group = parser.add_argument_group('Database Settings')
     db_group.add_argument("-c",
                           "--configure_db_settings",
@@ -65,12 +65,11 @@ def main():
                               action="store_true")
 
     email_group = parser.add_argument_group('E-mail Config')
-    email_group.add_argument("-e",
-                             "--configure_email_settings",
+    email_group.add_argument("--configure_email_settings",
                              help="Configure email alerts",
                              action="store_true")
-    email_group.add_argument("-r",
-                             "--remove_email_password_store",
+
+    email_group.add_argument("--remove_email_password_store",
                              help="Removes password stored in system keyring",
                              action="store_true")
 
@@ -110,17 +109,17 @@ def main():
     if args.list:
         mode.list_servers()
 
-    if args.remove_email_password_store:
-        email.gmail().clear_password_store()
-
-    if args.configure_email_settings:
-        email.gmail().configure()
-
-    # Magic starts here
-    if args.generate_report:
-        db_controller.db_helper().test_db_setup()
-        email.gmail().test_login()
-        report_generator.action.generate_report()
+    # if args.remove_email_password_store:
+    # email.gmail().clear_password_store()
+    #
+    # if args.configure_email_settings:
+    #     email.gmail().configure()
+    #
+    # # Magic starts here
+    # if args.generate_report:
+    #     db_controller.db_helper().test_db_setup()
+    #     email.gmail().test_login()
+    #     report_generator.action.generate_report()
 
     if args.remove_password_store:
         db_controller.db_helper().clear_password_store()
@@ -171,6 +170,7 @@ class modes(object, report_generator):  # Uses new style classes
 
 class server_logger(db_helpers, modes):
     """ self.variable same as monitor_list columns"""
+
     def __init__(self, monitor_row):
         self.sl_host = monitor_row[1]
         self.sl_port = monitor_row[2]
@@ -191,7 +191,7 @@ class server_logger(db_helpers, modes):
 
         if self.sl_service_type == 'tcp':
             logging.debug("Checking TCP Service: " + str(self.sl_host) + ' port: ' + str(self.sl_port))
-            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)+',').run_test()
+            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port) + ',').run_test()
 
         if up_down_flag is False:
             db_helpers.monitor_list.log_service_down(self)
