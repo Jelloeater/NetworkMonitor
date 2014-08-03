@@ -164,7 +164,6 @@ class server_logger():
             up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)+',').run_test()
 
         if up_down_flag is False:
-            logging.debug(self.sl_host + ' is DOWN')
             monitor_list.log_service_down(self)
         else:
             logging.debug(self.sl_host + ' is UP')

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 __author__ = 'Jesse'
 __doc__ = """
@@ -6,7 +7,6 @@ Provides a easy way for accessing all needed database functions
 """
 
 from Database import db_controller
-
 
 
 class monitor_list(object):
@@ -22,12 +22,19 @@ class monitor_list(object):
         get_all_query = '''SELECT * FROM monitor_list'''
         cur.execute(get_all_query)
         db_fetch = cur.fetchall()
-        db_controller.db_access.close_connection(conn,cur)
+        db_controller.db_access.close_connection(conn, cur)
         return db_fetch
 
     @staticmethod
     def log_service_down(server_logger_obj):
-        logging.debug(server_logger_obj.__dict__)
+        if server_logger_obj.sl_service_type == 'tcp':  # Combine ip and port for logging
+            server_logger_obj.sl_host = server_logger_obj.sl_host + ':' + str(server_logger_obj.sl_port)
+        logging.debug(server_logger_obj.sl_host + ' - ' + server_logger_obj.sl_service_type + ' is DOWN')
+        conn, cur = db_controller.db_access().open_connection()
+        cur.execute(
+            'INSERT INTO server_stats (time_stamp, ip_hostname, service_type) VALUES (%s, %s, %s)',
+            (datetime.now(), server_logger_obj.sl_host, server_logger_obj.sl_service_type))
+        db_controller.db_access.close_connection(conn, cur)
 
 
 class tcp(monitor_list):
