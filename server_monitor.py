@@ -1,16 +1,16 @@
 #!/usr/bin/env python2.7
 """A python project for monitoring network resources
 """
-import json
 import sys
 import logging
 import argparse
 from time import sleep
 
+from Alerters import email
+from Alerters import report_generator
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
-from db_helpers import monitor_list
 
 
 __author__ = "Jesse S"
@@ -58,6 +58,22 @@ def main():
                           help="Removes password stored in system keyring",
                           action="store_true")
 
+    report_group = parser.add_argument_group('Actions')
+    report_group.add_argument("-g",
+                              "--generate_report",
+                              help="Generate Weekly Report",
+                              action="store_true")
+
+    email_group = parser.add_argument_group('E-mail Config')
+    email_group.add_argument("-e",
+                             "--configure_email_settings",
+                             help="Configure email alerts",
+                             action="store_true")
+    email_group.add_argument("-r",
+                             "--remove_email_password_store",
+                             help="Removes password stored in system keyring",
+                             action="store_true")
+
     parser.add_argument("-d",
                         "--delay",
                         action="store",
@@ -94,6 +110,18 @@ def main():
     if args.list:
         mode.list_servers()
 
+    if args.remove_email_password_store:
+        email.gmail().clear_password_store()
+
+    if args.configure_email_settings:
+        email.gmail().configure()
+
+    # Magic starts here
+    if args.generate_report:
+        db_controller.db_helper().test_db_setup()
+        email.gmail().test_login()
+        report_generator.action.generate_report()
+
     if args.remove_password_store:
         db_controller.db_helper().clear_password_store()
 
@@ -107,7 +135,7 @@ def main():
         mode.multi_server()
 
 
-class modes(object):  # Uses new style classes
+class modes(object, report_generator):  # Uses new style classes
     def __init__(self, sleep_delay):
         self.sleep_delay = sleep_delay
         self.server_list = []
@@ -136,10 +164,12 @@ class modes(object):  # Uses new style classes
             logging.debug(self.server_list)
             for i in self.server_list:
                 server_logger(i).check_server_status()  # Send each row of monitor_list to logic gate
+
+            report_generator.action.report_generation_check()
             self.sleep()
 
 
-class server_logger():
+class server_logger(db_helpers, modes):
     """ self.variable same as monitor_list columns"""
     def __init__(self, monitor_row):
         self.sl_host = monitor_row[1]
@@ -164,23 +194,10 @@ class server_logger():
             up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)+',').run_test()
 
         if up_down_flag is False:
-            monitor_list.log_service_down(self)
+            db_helpers.monitor_list.log_service_down(self)
         else:
             logging.debug(self.sl_host + ' is UP')
 
-
-
-    def log_errors_to_db(self):
-        """ Takes error and logs list to db with timestamp """
-
-        players_list = json.dumps([])
-        # players_list = json.dumps(self.get_player_list())
-
-        # conn, cur = database.db_access().open_connection()
-        # cur.execute(
-        #     'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
-        #     (datetime.now(), self.ping[3], players_list, self.server_name))
-        # database.db_access.close_connection(conn, cur)
 
 if __name__ == "__main__":
     main()

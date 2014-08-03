@@ -206,7 +206,6 @@ class db_helper(db_access):
         db_access.close_connection(conn, cur)
 
 
-
         # TODO Execute on first run
 
     def test_db_setup(self):
@@ -225,7 +224,7 @@ class db_helper(db_access):
                 logging.error('Cannot find player_activity table')
                 self.__create_tables()
         except pg8000.errors.ProgrammingError:
-            logging.error('Cannot find '+self.DATABASE+' database')
+            logging.error('Cannot find ' + self.DATABASE + ' database')
             self.__create_database()
             self.__create_tables()
             try:
@@ -235,7 +234,6 @@ class db_helper(db_access):
                 logging.critical('Maybe try creating the database and table in Webmin, and running again?')
                 logging.critical('Sorry :( "I wasnt even supposed to be here today" -Dante')
                 sys.exit(1)
-
 
     def configure(self):
         print("Enter database username (postgres) or press enter to skip")
