@@ -184,12 +184,12 @@ class server_logger():
 
         if self.sl_service_type == 'tcp':
             logging.debug("Checking TCP Service: " + str(self.sl_host) + ' port: ' + str(self.sl_port))
-            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port) + ',').run_test()
+            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)).run_test()
 
         if up_down_flag is False:
             db_helpers.monitor_list.log_service_down(self)
         else:
-            logging.debug(self.sl_host + ' is UP')
+            logging.info(self.sl_host + ' is UP')
 
 
     def log_errors_to_db(self):

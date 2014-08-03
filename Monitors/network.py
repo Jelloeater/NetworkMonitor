@@ -1,10 +1,15 @@
 """Network-related monitors for SimpleMonitor."""
 import logging
 import urllib2
+
 from nmap import PortScanner
 
 
-class MonitorHTTP():
+class global_vars():
+    timeout = 5
+
+
+class MonitorHTTP(global_vars):
     """Check an HTTP server is working right. """
 
     def __init__(self, url):
@@ -14,7 +19,7 @@ class MonitorHTTP():
         # store the current default timeout (since it's global)
         http_response_code = 404
         try:
-            http_response_code = urllib2.urlopen(self.url, timeout=1).code
+            http_response_code = urllib2.urlopen(self.url, timeout=self.timeout).code
         except ValueError:
             logging.warning('Invalid URL')
         except urllib2.URLError:
@@ -31,7 +36,7 @@ class MonitorHTTP():
         return "Checking that accessing %s returns HTTP/200 OK" % self.url
 
 
-class MonitorTCP():
+class MonitorTCP(global_vars):
     """TCP port monitor"""
 
     def __init__(self, host, port):
@@ -46,10 +51,12 @@ class MonitorTCP():
     def run_test(self):
         """Check the port is open on the remote host"""
         ps = PortScanner()
-        scan = ps.scan(hosts=self.host, ports=self.port)
+        scan = ps.scan(hosts=self.host, ports=self.port, arguments='--host-timeout ' + str(self.timeout) + 's')
         try:
-            if scan['scan'][str(self.host)]['status']['state'] == 'up':
+            if scan['scan'][str(self.host)]['tcp'][str(self.port)]['state'] == 'open':
                 return True
+            else:
+                return False
         except KeyError:  # If we cannot find the info in the key for the status, this means the host is down
             return False
 
@@ -61,7 +68,7 @@ class MonitorTCP():
         return self.host, self.port
 
 
-class MonitorHost():
+class MonitorHost(global_vars):
     """Ping a host to make sure it's up"""
     def __init__(self, host):
         self.host = host
@@ -69,7 +76,7 @@ class MonitorHost():
             raise RuntimeError("missing hostname")
 
     def run_test(self):
-        scan = PortScanner().scan(self.host, arguments='-sn')
+        scan = PortScanner().scan(self.host, arguments='-sn --host-timeout ' + str(self.timeout) + 's')
         try:
             if scan['scan'][str(self.host)]['status']['state'] == 'up':
                 return True

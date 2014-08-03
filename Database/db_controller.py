@@ -35,7 +35,7 @@ class SettingsHelper(db_settings):
             except ValueError:
                 logging.error("Settings file has been corrupted, reverting to defaults")
                 os.remove(cls.SETTINGS_FILE_PATH)
-        logging.debug("Settings Loaded")
+                # logging.debug("Settings Loaded")
 
     @classmethod
     def saveSettings(cls):
@@ -58,7 +58,7 @@ class db_access(SettingsHelper, object):
             port=self.PORT,
             database=self.DATABASE)
         cursor = connection.cursor()
-        logging.debug('Opened DB Connection')
+        # logging.debug('Opened DB Connection')
         return connection, cursor
 
     @staticmethod
@@ -71,7 +71,7 @@ class db_access(SettingsHelper, object):
             logging.warning('Rollback')
         else:
             connection.commit()
-        logging.debug('Closed DB Connection')
+            # logging.debug('Closed DB Connection')
 
 
 class db_helper(db_access):

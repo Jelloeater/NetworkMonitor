@@ -49,7 +49,7 @@ class monitor_list(object):
     def log_service_down(server_logger_obj):
         if server_logger_obj.sl_service_type == 'tcp':  # Combine ip and port for logging
             server_logger_obj.sl_host = server_logger_obj.sl_host + ':' + str(server_logger_obj.sl_port)
-        logging.debug(server_logger_obj.sl_host + ' - ' + server_logger_obj.sl_service_type + ' is DOWN')
+        logging.warning(server_logger_obj.sl_host + ' - ' + server_logger_obj.sl_service_type + ' is DOWN')
         conn, cur = db_controller.db_access().open_connection()
         cur.execute(
             'INSERT INTO server_stats (time_stamp, ip_hostname, service_type) VALUES (%s, %s, %s)',
