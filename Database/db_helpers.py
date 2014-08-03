@@ -1,10 +1,11 @@
+"""
+Provides a easy way for accessing all needed database functions
+"""
+
 import logging
 from datetime import datetime
 
 __author__ = 'Jesse'
-__doc__ = """
-Provides a easy way for accessing all needed database functions
-"""
 
 from Database import db_controller
 
@@ -55,90 +56,39 @@ class monitor_list(object):
             (datetime.now(), server_logger_obj.sl_host, server_logger_obj.sl_service_type))
         db_controller.db_access.close_connection(conn, cur)
 
-
-class tcp(monitor_list):
-    def __init__(self):
-        pass
-
     @staticmethod
-    def create_server(ip_address, port):
-        # TODO Update function
+    def remove_server_from_monitor_list(index_to_remove):
         conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
+        cur.execute('DELETE FROM monitor_list WHERE index =' + index_to_remove)
+        db_controller.db_access.close_connection(conn, cur)
 
+    class tcp():
+        def __init__(self):
+            pass
 
-    @staticmethod
-    def update_server(ip_address, port):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
+        @staticmethod
+        def create_server(ip_address, port):
+            conn, cur = db_controller.db_access().open_connection()
+            cur.execute('INSERT INTO monitor_list (hostname, port, service_type) VALUES (%s, %s, %s)',
+                        (ip_address, port, 'tcp'))
+            db_controller.db_access.close_connection(conn, cur)
 
-    @staticmethod
-    def delete_server(ip_address):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
+    class host():
+        def __init__(self):
+            pass
 
+        @staticmethod
+        def create_server(ip_address):
+            conn, cur = db_controller.db_access().open_connection()
+            cur.execute('INSERT INTO monitor_list (hostname, service_type) VALUES (%s, %s)', (ip_address, 'host'))
+            db_controller.db_access.close_connection(conn, cur)
 
-class host(monitor_list):
-    def __init__(self):
-        pass
+    class url():
+        def __init__(self):
+            pass
 
-    @staticmethod
-    def create_server(ip_address):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
-
-    @staticmethod
-    def update_server(ip_address):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
-
-    @staticmethod
-    def delete_server(ip_address):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
-
-
-class url(monitor_list):
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def create_server(web_url):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
-
-    @staticmethod
-    def update_server(web_url):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
-
-    @staticmethod
-    def delete_server(web_url):
-        # TODO Update function
-        conn, cur = db_controller.db_access().open_connection()
-        get_all_query = '''SELECT * FROM monitor_list'''
-        cur.execute(get_all_query)
-        db_controller.db_access.close_connection(conn,cur)
+        @staticmethod
+        def create_server(web_url):
+            conn, cur = db_controller.db_access().open_connection()
+            cur.execute('INSERT INTO monitor_list (hostname, service_type) VALUES (%s, %s)', (web_url, 'url'))
+            db_controller.db_access.close_connection(conn, cur)

@@ -16,6 +16,7 @@ from time import sleep
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
+from Database import monitor_list_config
 
 # from Alerters import report_generator
 from Alerters import email
@@ -67,16 +68,20 @@ def main():
                           help="Removes password stored in system keyring",
                           action="store_true")
 
+    monitor_list_group = parser.add_argument_group('Monitor List')
+    monitor_list_group.add_argument("-config_monitors",
+                                    help="Configure servers to monitor",
+                                    action="store_true")
+    monitor_list_group.add_argument("-list",
+                                    help="List servers to monitor",
+                                    action="store_true")
+
     parser.add_argument("-d",
                         "--delay",
                         action="store",
                         type=int,
                         default=60,
                         help="Wait x second between checks (ex. 60)")
-    parser.add_argument("-l",
-                        "--list",
-                        action="store_true",
-                        help="List Servers")
     parser.add_argument("--debug",
                         action="store_true",
                         help="Debug Mode Logging")
@@ -102,7 +107,10 @@ def main():
 
     # Arg Logic here
     if args.list:
-        mode.list_servers()
+        monitor_list_config.list_servers()
+
+    if args.config_monitors:
+        monitor_list_config.main()
 
     if args.config_db:
         db_controller.db_helper().configure()
@@ -121,7 +129,7 @@ def main():
         db_controller.db_helper().test_db_setup()
         logging.debug('Testing login')
         email.send_gmail().test_login()
-        # report_generator.reports.generate_report()
+        # report_generator.reports.generate_report()  #TODO Re-add report generator
 
     if args.monitor:
         mode.multi_server()
@@ -140,12 +148,6 @@ class modes(object):  # Uses new style classes
         except KeyboardInterrupt:
             print("Bye Bye.")
             sys.exit(0)
-
-    def list_servers(self):
-        print("Servers:")
-        self.server_list = db_helpers.monitor_list.get_server_list()
-        for i in self.server_list:
-            print(i)
 
     def multi_server(self):
         print("Multi Server mode")
