@@ -5,8 +5,11 @@ import logging
 import os
 import smtplib
 import sys
+
 import keyring
 from keyring.errors import PasswordDeleteError
+from Database import db_helpers
+
 
 __author__ = 'Jesse'
 
@@ -72,6 +75,8 @@ class gmail(object, SettingsHelper):
         server.sendmail(self.USERNAME, self.SEND_ALERT_TO, message)
         server.close()
         logging.info("Message Sent")
+        db_helpers.email_log.log_email_sent(message)
+
 
     def configure(self):
         print("Enter user email (user@domain.com) or press enter to skip")
