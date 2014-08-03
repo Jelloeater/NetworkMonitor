@@ -47,9 +47,10 @@ class MonitorTCP():
         """Check the port is open on the remote host"""
         ps = PortScanner()
         scan = ps.scan(hosts=self.host, ports=self.port)
-        if scan['scan'][self.host]['status']['state'] == 'up':
-            return True
-        else:
+        try:
+            if scan['scan'][str(self.host)]['status']['state'] == 'up':
+                return True
+        except KeyError:  # If we cannot find the info in the key for the status, this means the host is down
             return False
 
     def describe(self):
@@ -69,9 +70,10 @@ class MonitorHost():
 
     def run_test(self):
         scan = PortScanner().scan(self.host, arguments='-sn')
-        if scan['scan'][self.host]['status']['state'] == 'up':
-            return True
-        else:
+        try:
+            if scan['scan'][str(self.host)]['status']['state'] == 'up':
+                return True
+        except KeyError:  # If we cannot find the info in the key for the status, this means the host is down
             return False
 
     def describe(self):

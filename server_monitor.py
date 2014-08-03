@@ -10,6 +10,7 @@ from time import sleep
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
+from db_helpers import monitor_list
 
 
 __author__ = "Jesse S"
@@ -141,29 +142,34 @@ class modes(object):  # Uses new style classes
 class server_logger():
     """ self.variable same as monitor_list columns"""
     def __init__(self, monitor_row):
-        self.host = monitor_row[1]
-        self.port = monitor_row[2]
-        self.service_type = monitor_row[3]
+        self.sl_host = monitor_row[1]
+        self.sl_port = monitor_row[2]
+        self.sl_service_type = monitor_row[3]
 
     def check_server_status(self):
-        # TODO Pick either TCP, Ping host, or check web, depending on args
-        if self.service_type == 'url':
-            logging.debug("Checking URL: " + str(self.host))
-            x = network.MonitorHTTP(self.host).run_test()
-            print(x)
-            # TODO HTTP URL Check
+        """ Picks either TCP, Ping host, or check web, depending on args """
 
-        if self.service_type == 'host':
-            logging.debug("Checking host: " + str(self.host))
-            x = network.MonitorHost(self.host).run_test()
-            print(x)
-            # TODO Host Check
+        up_down_flag = False
 
-        if self.service_type == 'tcp':
-            logging.debug("Checking TCP Service: " + str(self.host) + ' port: ' + str(self.port))
-            x = network.MonitorTCP(host=self.host, port=str(self.port)+',').run_test()
-            print(x)
-            # TODO TCP Check
+        if self.sl_service_type == 'url':
+            logging.debug("Checking URL: " + str(self.sl_host))
+            up_down_flag = network.MonitorHTTP(self.sl_host).run_test()
+
+        if self.sl_service_type == 'host':
+            logging.debug("Checking host: " + str(self.sl_host))
+            up_down_flag = network.MonitorHost(self.sl_host).run_test()
+
+        if self.sl_service_type == 'tcp':
+            logging.debug("Checking TCP Service: " + str(self.sl_host) + ' port: ' + str(self.sl_port))
+            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)+',').run_test()
+
+        if up_down_flag is False:
+            logging.debug(self.sl_host + ' is DOWN')
+            monitor_list.log_service_down(self)
+        else:
+            logging.debug(self.sl_host + ' is UP')
+
+
 
     def log_errors_to_db(self):
         """ Takes error and logs list to db with timestamp """

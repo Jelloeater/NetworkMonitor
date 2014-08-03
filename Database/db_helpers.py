@@ -1,3 +1,5 @@
+import logging
+
 __author__ = 'Jesse'
 __doc__ = """
 Provides a easy way for accessing all needed database functions
@@ -22,6 +24,10 @@ class monitor_list(object):
         db_fetch = cur.fetchall()
         db_controller.db_access.close_connection(conn,cur)
         return db_fetch
+
+    @staticmethod
+    def log_service_down(server_logger_obj):
+        logging.debug(server_logger_obj.__dict__)
 
 
 class tcp(monitor_list):
