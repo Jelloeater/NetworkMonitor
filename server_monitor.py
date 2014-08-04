@@ -81,7 +81,22 @@ def main():
                         action="store",
                         type=int,
                         default=60,
-                        help="Wait x second between checks (ex. 60)")
+                        help="Wait x second between checks")
+
+    parser.add_argument("-a",
+                        "--alert_timeout",
+                        action="store",
+                        type=int,
+                        default=15,
+                        help="Wait x minutes between alerts")
+
+    parser.add_argument("-t",
+                        "--host_timeout",
+                        action="store",
+                        type=int,
+                        default=10,
+                        help="Wait x seconds for failure")
+
     parser.add_argument("--debug",
                         action="store_true",
                         help="Debug Mode Logging")
@@ -98,7 +113,7 @@ def main():
                             format="[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(lineno)s)",
                             level=logging.WARNING)
 
-    mode = modes(sleep_delay=args.delay)
+    mode = modes(sleep_delay=args.delay, alert_timeout=args.alert_timeout, host_timeout=args.host_timeout)
     # Create new mode object for flow, I'll buy that :)
 
     if len(sys.argv) == 1:  # Displays help and lists servers (to help first time users)
@@ -136,8 +151,10 @@ def main():
 
 
 class modes(object):  # Uses new style classes
-    def __init__(self, sleep_delay):
+    def __init__(self, sleep_delay, alert_timeout, host_timeout):
         self.sleep_delay = sleep_delay
+        self.alert_timeout = alert_timeout
+        self.host_timeout = host_timeout
         self.server_list = []
 
         # TODO Load server List from JSON
@@ -154,17 +171,21 @@ class modes(object):  # Uses new style classes
         print("Press Ctrl-C to quit")
 
         while True:
-            self.server_list = db_helpers.monitor_list.get_server_list()  # Gets server list on each refresh, in-case of updates
+            self.server_list = db_helpers.monitor_list.get_server_list()
+            # Gets server list on each refresh, in-case of updates
             logging.debug(self.server_list)
             for i in self.server_list:
-                server_logger(i).check_server_status()  # Send each row of monitor_list to logic gate
+                server_logger(i, sleep_delay=self.sleep_delay, alert_timeout=self.alert_timeout,
+                              host_timeout=self.host_timeout).check_server_status()
+                # Send each row of monitor_list to logic gate
             self.sleep()
 
 
-class server_logger():
+class server_logger(modes):
     """ self.variable same as monitor_list columns"""
 
-    def __init__(self, monitor_row):
+    def __init__(self, monitor_row, sleep_delay, alert_timeout, host_timeout):
+        super(server_logger, self).__init__(sleep_delay, alert_timeout, host_timeout)
         self.sl_host = monitor_row[1]
         self.sl_port = monitor_row[2]
         self.sl_service_type = monitor_row[3]
@@ -176,18 +197,24 @@ class server_logger():
 
         if self.sl_service_type == 'url':
             logging.debug("Checking URL: " + str(self.sl_host))
-            up_down_flag = network.MonitorHTTP(self.sl_host).run_test()
+            up_down_flag = network.MonitorHTTP(url=self.sl_host, timeout=self.host_timeout).run_test()
 
         if self.sl_service_type == 'host':
             logging.debug("Checking host: " + str(self.sl_host))
-            up_down_flag = network.MonitorHost(self.sl_host).run_test()
+            up_down_flag = network.MonitorHost(host=self.sl_host, timeout=self.host_timeout).run_test()
 
         if self.sl_service_type == 'tcp':
             logging.debug("Checking TCP Service: " + str(self.sl_host) + ' port: ' + str(self.sl_port))
-            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port)).run_test()
+            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port),
+                                              timeout=self.host_timeout).run_test()
 
         if up_down_flag is False:
             db_helpers.monitor_list.log_service_down(self)
+
+            if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout:
+                pass
+                # Generate email if last sent 30 mins ago
+
         else:
             logging.info(self.sl_host + ' is UP')
 

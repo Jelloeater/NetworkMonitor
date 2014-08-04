@@ -5,15 +5,12 @@ import urllib2
 from nmap import PortScanner
 
 
-class global_vars():
-    timeout = 5
-
-
-class MonitorHTTP(global_vars):
+class MonitorHTTP():
     """Check an HTTP server is working right. """
 
-    def __init__(self, url):
+    def __init__(self, url, timeout):
         self.url = url
+        self.timeout = timeout
 
     def run_test(self):
         # store the current default timeout (since it's global)
@@ -36,10 +33,10 @@ class MonitorHTTP(global_vars):
         return "Checking that accessing %s returns HTTP/200 OK" % self.url
 
 
-class MonitorTCP(global_vars):
+class MonitorTCP():
     """TCP port monitor"""
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, timeout):
 
         if host == "":
             raise RuntimeError("missing hostname")
@@ -47,6 +44,7 @@ class MonitorTCP(global_vars):
             raise RuntimeError("missing or invalid port number")
         self.host = host
         self.port = port
+        self.timeout = timeout
 
     def run_test(self):
         """Check the port is open on the remote host"""
@@ -68,10 +66,12 @@ class MonitorTCP(global_vars):
         return self.host, self.port
 
 
-class MonitorHost(global_vars):
+class MonitorHost():
     """Ping a host to make sure it's up"""
-    def __init__(self, host):
+
+    def __init__(self, host, timeout):
         self.host = host
+        self.timeout = timeout
         if host == "":
             raise RuntimeError("missing hostname")
 
