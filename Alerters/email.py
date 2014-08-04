@@ -3,9 +3,9 @@ import json
 import logging
 import os
 
-# import gmail
-import smtplib
+import smtplib  # For Authentication Error
 import sys
+import db_helpers
 import gmail
 
 import keyring
@@ -64,8 +64,8 @@ class send_gmail(object, SettingsHelper):
         logging.info("Sending email")
         gmail.GMail(username=self.USERNAME, password=self.PASSWORD).send(
             gmail.Message(subject=subject, to=self.SEND_ALERT_TO))
+        db_helpers.email_log.log_email_sent(self.SEND_ALERT_TO)
         logging.info("Message Sent")
-
 
     def configure(self):
         print("Enter user email (user@domain.com) or press enter to skip")

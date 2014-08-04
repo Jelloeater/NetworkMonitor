@@ -12,21 +12,28 @@ from Database import db_controller
 
 class email_log(object):
     @staticmethod
-    def log_email_sent(message):
-        logging.debug(message)
-        pass
-        # TODO Write log info to db
+    def log_email_sent(to_list):
+        logging.debug(to_list)
+        conn, cur = db_controller.db_access().open_connection()
+        cur.execute(
+            'INSERT INTO email_log (time_stamp, to_address) VALUES (%s, %s)',
+            (datetime.now(), str(to_list)))
+        db_controller.db_access.close_connection(conn, cur)
 
     @staticmethod
     def email_sent_x_minutes_ago():
-        # FIXME Check time check method
         minutes_ago = 0
 
         conn, cur = db_controller.db_access().open_connection()
         cur.execute(
-            'SELECT * FROM email_log ORDER BY time_stamp DESC LIMIT 1')
+            'SELECT time_stamp FROM email_log ORDER BY time_stamp DESC LIMIT 1')
         x = cur.fetchone()
         db_controller.db_access.close_connection(conn, cur)
+        diff = datetime.now() - x
+        #FIXME Broken math (should do diff of times)
+
+        logging.debug(diff)
+
         return minutes_ago
 
 
@@ -47,6 +54,8 @@ class monitor_list(object):
 
     @staticmethod
     def log_service_down(server_logger_obj):
+        """ Takes error and logs list to db with timestamp """
+
         if server_logger_obj.sl_service_type == 'tcp':  # Combine ip and port for logging
             server_logger_obj.sl_host = server_logger_obj.sl_host + ':' + str(server_logger_obj.sl_port)
         logging.warning(server_logger_obj.sl_host + ' - ' + server_logger_obj.sl_service_type + ' is DOWN')

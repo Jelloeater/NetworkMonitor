@@ -9,7 +9,6 @@ sys.path.append(os.getcwd() + '/pg8000-master')
 sys.path.append(os.getcwd() + '/python-nmap-0.1.4')
 sys.path.append(os.getcwd() + '/gmail-0.5')
 
-import json
 import logging
 import argparse
 from time import sleep
@@ -18,7 +17,7 @@ from Database import db_helpers
 from Monitors import network
 from Database import monitor_list_config
 
-# from Alerters import report_generator
+from Alerters import report_generator
 from Alerters import email
 
 
@@ -212,24 +211,10 @@ class server_logger(modes):
             db_helpers.monitor_list.log_service_down(self)
 
             if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout:
-                pass
-                # Generate email if last sent 30 mins ago
-
+                report_generator.reports.generate_report()
+                # TODO This is the root function for all reporting
         else:
             logging.info(self.sl_host + ' is UP')
-
-
-    def log_errors_to_db(self):
-        """ Takes error and logs list to db with timestamp """
-
-        players_list = json.dumps([])
-        # players_list = json.dumps(self.get_player_list())
-
-        # conn, cur = database.db_access().open_connection()
-        # cur.execute(
-        # 'INSERT INTO player_activity ("Time_Stamp","Player_Count","Player_Names","Server_Name") VALUES (%s, %s, %s,%s)',
-        # (datetime.now(), self.ping[3], players_list, self.server_name))
-        # database.db_access.close_connection(conn, cur)
 
 
 if __name__ == "__main__":

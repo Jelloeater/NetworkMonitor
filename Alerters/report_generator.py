@@ -16,7 +16,7 @@ class reports:
     @staticmethod
     def generate_report(number_of_days=7):
         conn, cur = db_controller.db_access().open_connection()
-        # TODO Rewrite table query
+        # FIXME Rewrite table query
         # query = '''SELECT * FROM player_activity WHERE "Time_Stamp" >= (now() - '{0} day'::INTERVAL);'''
         # cur.execute(query.format(number_of_days))
         data = cur.fetchall()
@@ -35,6 +35,5 @@ class reports:
 
         email.send_gmail().send(subject=subj, text=''.join(msg))
         db_helpers.email_log.log_email_sent(''.join(msg))
-        # Create gmail obj
 
 
