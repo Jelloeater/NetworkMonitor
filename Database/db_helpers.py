@@ -23,18 +23,16 @@ class email_log(object):
     @staticmethod
     def email_sent_x_minutes_ago():
         minutes_ago = 0
+        #TODO Deal with empty table use case
 
         conn, cur = db_controller.db_access().open_connection()
         cur.execute(
             'SELECT time_stamp FROM email_log ORDER BY time_stamp DESC LIMIT 1')
-        x = cur.fetchone()
+        then = cur.fetchone()[0]
         db_controller.db_access.close_connection(conn, cur)
-        diff = datetime.now() - x
-        #FIXME Broken math (should do diff of times)
-
-        logging.debug(diff)
-
-        return minutes_ago
+        now = datetime.now()
+        diff = (now - then).seconds
+        return float(diff)/60
 
 
 class monitor_list(object):
