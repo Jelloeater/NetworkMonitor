@@ -30,8 +30,9 @@ class email_log(object):
         then = cur.fetchone()[0]
         db_controller.db_access.close_connection(conn, cur)
         now = datetime.now()
-        diff = (now - then).seconds
-        return float(diff)/60
+        diff = (now - then)
+        day_seconds = diff.days * 24 * 60 * 60  # Converts diff.days into seconds
+        return float(day_seconds + diff.seconds)/60  # Returns total diff in minutes
 
 
 class monitor_list(object):

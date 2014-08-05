@@ -215,7 +215,8 @@ class server_logger(modes):
     def server_down_actions(self):
         """ Core logic for driving program """
         db_helpers.monitor_list.log_service_down(self)
-
+        last_email = db_helpers.email_log.email_sent_x_minutes_ago()
+        logging.debug(last_email)
         if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout:  # Report logic
             email_alerts.email_actions.send_alert(self)
 
