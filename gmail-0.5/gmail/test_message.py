@@ -1,5 +1,5 @@
 import unittest
-from email.mime.base import MIMEBase
+from email_controller.mime.base import MIMEBase
 from textwrap import dedent
 
 from message import Message

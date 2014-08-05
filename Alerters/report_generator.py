@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from Alerters import email
+from Alerters import email_controller
 from Database import db_controller
 from Database import db_helpers
 
@@ -33,7 +33,7 @@ class reports:
         msg.append('\n\nReport Generated @ ' + str(datetime.now()))
         subj = "Server Status Report"
 
-        email.send_gmail().send(subject=subj, text=''.join(msg))
+        email_controller.send_gmail().send(subject=subj, text=''.join(msg))
         db_helpers.email_log.log_email_sent(''.join(msg))
 
 

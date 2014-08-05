@@ -7,7 +7,6 @@ __author__ = 'Jesse Laptop'
 
 class TestServer_logger(TestCase):
     def test_check_server_status_report_logic(self):
-
         self.alert_timeout = 5
         if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout:
             report_generator.reports.generate_report()

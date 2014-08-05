@@ -17,8 +17,8 @@ from Database import db_helpers
 from Monitors import network
 from Database import monitor_list_config
 
-from Alerters import report_generator
-from Alerters import email
+from Alerters import email_alerts
+from Alerters import email_controller
 
 
 __author__ = "Jesse S"
@@ -133,16 +133,16 @@ def main():
         db_controller.db_helper().clear_password_store()
 
     if args.config_email:
-        email.send_gmail().configure()
+        email_controller.send_gmail().configure()
 
     if args.rm_email_pass_store:
-        email.send_gmail().clear_password_store()
+        email_controller.send_gmail().clear_password_store()
 
     # Magic starts here
     if args.generate_report:
         db_controller.db_helper().test_db_setup()
         logging.debug('Testing login')
-        email.send_gmail().test_login()
+        email_controller.send_gmail().test_login()
         # report_generator.reports.generate_report()  #TODO Re-add report generator
 
     if args.monitor:
@@ -216,8 +216,8 @@ class server_logger(modes):
         """ Core logic for driving program """
         db_helpers.monitor_list.log_service_down(self)
 
-        if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout: # Report logic
-            report_generator.reports.generate_report()
+        if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout:  # Report logic
+            email_alerts.email_actions.send_alert(self)
 
 if __name__ == "__main__":
     main()
