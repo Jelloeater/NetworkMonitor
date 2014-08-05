@@ -208,14 +208,16 @@ class server_logger(modes):
                                               timeout=self.host_timeout).run_test()
 
         if up_down_flag is False:
-            db_helpers.monitor_list.log_service_down(self)
-
-            if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout:
-                report_generator.reports.generate_report()
-                # TODO This is the root function for all reporting
+            self.server_down_actions()
         else:
             logging.info(self.sl_host + ' is UP')
 
+    def server_down_actions(self):
+        """ Core logic for driving program """
+        db_helpers.monitor_list.log_service_down(self)
+
+        if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout: # Report logic
+            report_generator.reports.generate_report()
 
 if __name__ == "__main__":
     main()
