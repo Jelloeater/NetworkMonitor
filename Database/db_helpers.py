@@ -22,7 +22,6 @@ class email_log(object):
 
     @staticmethod
     def email_sent_x_minutes_ago():
-        minutes_ago = 0
         #TODO Deal with empty table use case
 
         conn, cur = db_controller.db_access().open_connection()
