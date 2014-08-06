@@ -10,10 +10,16 @@ class email_actions():
     @staticmethod
     def send_alert(server_info_object):
 
+        logging.debug(server_info_object)
+        # TODO handle multiple server log types (tcp,url,host)
+        var = server_info_object.sl_host
+        var = server_info_object.sl_port
+        var = server_info_object.sl_service_type
+
         subj = "Server Status Report"
         # noinspection PyListCreation
-        msg = ['The First Line: \n\n']  # Email Message Body
-
+        msg = []  # Email Message Body
+        msg.append('The First Line: \n\n')
         msg.append('\nA message')
 
         msg.append('\n\nReport Generated @ ' + str(datetime.now()))
