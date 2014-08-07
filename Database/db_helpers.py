@@ -73,10 +73,10 @@ class monitor_list(object):
             pass
 
         @staticmethod
-        def create_server(ip_address, port):
+        def create_server(ip_address, port, note=None):
             conn, cur = db_controller.db_access().open_connection()
-            cur.execute('INSERT INTO monitor_list (hostname, port, service_type) VALUES (%s, %s, %s)',
-                        (ip_address, port, 'tcp'))
+            cur.execute('INSERT INTO monitor_list (hostname, port, service_type, note) VALUES (%s, %s, %s, %s)',
+                        (ip_address, port, 'tcp', note))
             db_controller.db_access.close_connection(conn, cur)
 
     class host():
@@ -84,9 +84,10 @@ class monitor_list(object):
             pass
 
         @staticmethod
-        def create_server(ip_address):
+        def create_server(ip_address, note=None):
             conn, cur = db_controller.db_access().open_connection()
-            cur.execute('INSERT INTO monitor_list (hostname, service_type) VALUES (%s, %s)', (ip_address, 'host'))
+            cur.execute('INSERT INTO monitor_list (hostname, service_type, note) VALUES (%s, %s, %s)',
+                        (ip_address, 'host', note))
             db_controller.db_access.close_connection(conn, cur)
 
     class url():
@@ -94,7 +95,8 @@ class monitor_list(object):
             pass
 
         @staticmethod
-        def create_server(web_url):
+        def create_server(web_url, note=None):
             conn, cur = db_controller.db_access().open_connection()
-            cur.execute('INSERT INTO monitor_list (hostname, service_type) VALUES (%s, %s)', (web_url, 'url'))
+            cur.execute('INSERT INTO monitor_list (hostname, service_type, note) VALUES (%s, %s, %s)',
+                        (web_url, 'url', note))
             db_controller.db_access.close_connection(conn, cur)

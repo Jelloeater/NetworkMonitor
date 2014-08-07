@@ -172,6 +172,7 @@ class db_helper(db_access):
         "hostname" TEXT,
         "port" INTEGER ,
         "service_type" TEXT NOT NULL,
+        "note" TEXT,
         CONSTRAINT "monitor_list_pkey"
         PRIMARY KEY ("index"))'''
         # Checks to make sure the type in valid on INSERT

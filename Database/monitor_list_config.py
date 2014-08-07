@@ -1,4 +1,7 @@
+import logging
+
 import db_helpers
+
 
 __author__ = 'Jesse'
 
@@ -13,10 +16,12 @@ def check_for_valid_service_type():
 def list_servers():
     x = db_helpers.monitor_list.get_server_list()
     print("Servers:")
-    print("{0}{1}{2}{3}".format("Index".ljust(8), "Hostname".ljust(50), "Port".ljust(8), "Service Type".ljust(0)))
+    print("{0}{1}{2}{3}".format("Index".ljust(8), "Hostname".ljust(50), "Port".ljust(8),
+                                "Service Type".ljust(10), "Note".ljust(0)))
 
     for i in x:
-        print "{0}{1}{2}{3}".format(str(i[0]).ljust(8), i[1].ljust(50), str(i[2]).ljust(8), i[3].ljust(0))
+        print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str(i[2]).ljust(8),
+                                       i[3].ljust(8), str(i[4]).ljust(10))
 
     return x  # Return the list, should come in handy
 
@@ -45,19 +50,30 @@ def main():
             if type_choice == '1':
                 print("Enter Hostname (ex 127.0.0.1):")
                 hostname = raw_input('({0})>'.format(''))
-                db_helpers.monitor_list.host.create_server(hostname)
+                print("Enter Note (ex Web Server):")
+                note = raw_input('({0})>'.format(''))
+                db_helpers.monitor_list.host.create_server(hostname, note)
 
             if type_choice == '2':
                 print("Enter URL (ex http://www.google.com):")
                 url = raw_input('({0})>'.format(''))
-                db_helpers.monitor_list.url.create_server(url)
+                print("Enter Note (ex Web Server):")
+                note = raw_input('({0})>'.format(''))
+                db_helpers.monitor_list.url.create_server(url, note)
 
             if type_choice == '3':
                 print("Enter Hostname (ex 127.0.0.1):")
                 hostname = raw_input('({0})>'.format(''))
                 print("Enter Port (ex 22):")
                 port = raw_input('({0})>'.format(''))
-                db_helpers.monitor_list.tcp.create_server(hostname, port)
+                print("Enter Note (ex Web Server):")
+                note = raw_input('({0})>'.format(''))
+
+                logging.debug(note.isspace())
+                if note.isspace():
+                    db_helpers.monitor_list.tcp.create_server(hostname, port)
+                else:
+                    db_helpers.monitor_list.tcp.create_server(hostname, port, note)
 
         if menu_choice == "2":
             menu_choice = raw_input('({0})>'.format('Remove: '))
