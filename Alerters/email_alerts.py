@@ -15,6 +15,7 @@ class email_actions():
         var = server_info_object.sl_host
         var = server_info_object.sl_port
         var = server_info_object.sl_service_type
+        var = server_info_object.sl_note
 
         subj = "Server Status Report"
         # noinspection PyListCreation

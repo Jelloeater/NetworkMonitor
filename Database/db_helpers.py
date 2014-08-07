@@ -42,7 +42,6 @@ class monitor_list(object):
     @staticmethod
     def get_server_list():
         """ Gets the entire monitor_list from db """
-        # FIXME write getter for server list
         conn, cur = db_controller.db_access().open_connection()
         get_all_query = '''SELECT * FROM monitor_list'''
         cur.execute(get_all_query)

@@ -15,7 +15,7 @@ from time import sleep
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
-from Database import monitor_list_config
+from Database import db_monitor_list
 
 from Alerters import email_alerts
 from Alerters import email_controller
@@ -121,10 +121,10 @@ def main():
 
     # Arg Logic here
     if args.list:
-        monitor_list_config.list_servers()
+        db_monitor_list.get_print_server_list()
 
     if args.config_monitors:
-        monitor_list_config.main()
+        db_monitor_list.config_monitor_list()
 
     if args.config_db:
         db_controller.db_helper().configure()
@@ -143,7 +143,8 @@ def main():
         db_controller.db_helper().test_db_setup()
         logging.debug('Testing login')
         email_controller.send_gmail().test_login()
-        # report_generator.reports.generate_report()  #TODO Re-add report generator
+        # report_generator.reports.generate_report()
+        # #TODO Re-add report generator
 
     if args.monitor:
         mode.multi_server()
@@ -188,6 +189,7 @@ class server_logger(modes):
         self.sl_host = monitor_row[1]
         self.sl_port = monitor_row[2]
         self.sl_service_type = monitor_row[3]
+        self.sl_note = monitor_row[4]
 
     def check_server_status(self):
         """ Picks either TCP, Ping host, or check web, depending on args """
