@@ -17,7 +17,8 @@ def list_servers():
     x = db_helpers.monitor_list.get_server_list()
     print("Servers:")
     print("{0}{1}{2}{3}".format("Index".ljust(8), "Hostname".ljust(50), "Port".ljust(8),
-                                "Service Type".ljust(10), "Note".ljust(0)))
+                                "Service".ljust(0), "Note".ljust(0)))
+    # TODO Fix formatting
 
     for i in x:
         print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str(i[2]).ljust(8),
@@ -52,14 +53,21 @@ def main():
                 hostname = raw_input('({0})>'.format(''))
                 print("Enter Note (ex Web Server):")
                 note = raw_input('({0})>'.format(''))
-                db_helpers.monitor_list.host.create_server(hostname, note)
+                if note.isspace() or note == "":
+                    db_helpers.monitor_list.host.create_server(hostname)
+                else:
+                    db_helpers.monitor_list.host.create_server(hostname, note)
 
             if type_choice == '2':
                 print("Enter URL (ex http://www.google.com):")
                 url = raw_input('({0})>'.format(''))
                 print("Enter Note (ex Web Server):")
                 note = raw_input('({0})>'.format(''))
-                db_helpers.monitor_list.url.create_server(url, note)
+
+                if note.isspace() or note == "":
+                    db_helpers.monitor_list.url.create_server(url)
+                else:
+                    db_helpers.monitor_list.url.create_server(url, note)
 
             if type_choice == '3':
                 print("Enter Hostname (ex 127.0.0.1):")
@@ -70,7 +78,7 @@ def main():
                 note = raw_input('({0})>'.format(''))
 
                 logging.debug(note.isspace())
-                if note.isspace():
+                if note.isspace() or note == "":
                     db_helpers.monitor_list.tcp.create_server(hostname, port)
                 else:
                     db_helpers.monitor_list.tcp.create_server(hostname, port, note)
