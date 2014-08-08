@@ -62,7 +62,7 @@ class send_gmail(object, SettingsHelper):
     def send(self, subject, text):
         logging.info("Sending email")
         gmail.GMail(username=self.USERNAME, password=self.PASSWORD).send(
-            gmail.Message(subject=subject, to=self.convert_to_list_to_csv()))
+            gmail.Message(subject=subject, to=self.convert_to_list_to_csv(), text=text))
         db_helpers.email_log.log_email_sent(self.SEND_ALERT_TO)
         logging.info("Message Sent")
 

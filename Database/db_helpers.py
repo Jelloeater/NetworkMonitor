@@ -34,15 +34,18 @@ class email_log(object):
     def email_sent_x_minutes_ago():
         #TODO Deal with empty table use case
 
-        conn, cur = db_controller.db_access().open_connection()
-        cur.execute(
-            'SELECT time_stamp FROM email_log ORDER BY time_stamp DESC LIMIT 1')
-        then = cur.fetchone()[0]
-        db_controller.db_access.close_connection(conn, cur)
-        now = datetime.now()
-        diff = (now - then)
-        day_seconds = diff.days * 24 * 60 * 60  # Converts diff.days into seconds
-        return float(day_seconds + diff.seconds)/60  # Returns total diff in minutes
+        try:
+            conn, cur = db_controller.db_access().open_connection()
+            cur.execute(
+                'SELECT time_stamp FROM email_log ORDER BY time_stamp DESC LIMIT 1')
+            then = cur.fetchone()[0]
+            db_controller.db_access.close_connection(conn, cur)
+            now = datetime.now()
+            diff = (now - then)
+            day_seconds = diff.days * 24 * 60 * 60  # Converts diff.days into seconds
+            return float(day_seconds + diff.seconds) / 60  # Returns total diff in minutes
+        except TypeError:
+            return 9999
 
 
 class monitor_list(object):
@@ -78,7 +81,7 @@ class monitor_list(object):
 
         if server_logger_obj.sl_service_type == 'tcp':  # Combine ip and port for logging
             server_logger_obj.sl_host = server_logger_obj.sl_host + ':' + str(server_logger_obj.sl_port)
-        logging.warning(server_logger_obj.sl_host + ' - ' + server_logger_obj.sl_service_type + ' is DOWN')
+        logging.info(server_logger_obj.sl_host + ' - ' + server_logger_obj.sl_service_type + ' is DOWN')
         conn, cur = db_controller.db_access().open_connection()
         cur.execute(
             'INSERT INTO server_stats (time_stamp, ip_hostname, service_type) VALUES (%s, %s, %s)',

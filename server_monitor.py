@@ -181,19 +181,19 @@ class modes(object):  # Uses new style classes
 
             last_email = db_helpers.email_log.email_sent_x_minutes_ago()
             last_fail = db_helpers.monitor_list.get_time_from_last_failure()
-            logging.debug('\n' +
-                          'Last e-mail sent: ' + str(last_email) + '\n' +
-                          'Timeout: ' + str(self.alert_timeout) + '\n' +
-                          'Last Failure: ' + str(last_fail) + '\n')
+            logging.debug(
+                'Last e-mail sent: ' + str(last_email) + 'Timeout: ' + str(self.alert_timeout) +
+                'Last Failure: ' + str(last_fail))
 
             if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout \
                     > db_helpers.monitor_list.get_time_from_last_failure():
                 # Are we spamming alerts?
                 # Check if any servers have gone down in the the last X minutes
                 # FIXME If any have gone down, send report
-                logging.debug('SENDING REPORT')
+                logging.info('SENDING REPORT')
                 email_alerts.email_actions.generate_report()
-                logging.debug('BREAKPOINT')
+            else:
+                logging.info('E-mail timeout still cooling off')
 
             self.sleep()
 
