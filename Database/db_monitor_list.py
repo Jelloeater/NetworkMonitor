@@ -38,7 +38,6 @@ def get_print_server_list():
 
 
 def config_monitor_list():
-    # TODO Write TUI for configuring servers (should use db_helpers.monitor_list.tcp/host/url.create/etc)
     while True:
         server_list = get_print_server_list()
         print("")

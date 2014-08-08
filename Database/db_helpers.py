@@ -15,10 +15,11 @@ class server_stats(object):
     def failures_in_x_minutes_ago(last_x_minutes_of_failures):
         """ Returns list of failures from variable"""
         conn, cur = db_controller.db_access().open_connection()
-        query = '''SELECT * FROM server_stats WHERE time_stamp >= (now() - '{0} minute'::INTERVAL);'''
+        query = '''SELECT * FROM server_stats WHERE time_stamp >= (now() - '{0} minute'::INTERVAL) ORDER BY time_stamp DESC;'''
         cur.execute(query.format(last_x_minutes_of_failures))
         data = cur.fetchall()
         return data
+
 
 class email_log(object):
     @staticmethod

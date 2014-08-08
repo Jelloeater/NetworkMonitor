@@ -189,7 +189,7 @@ class modes(object):  # Uses new style classes
                     > db_helpers.monitor_list.get_time_from_last_failure():
                 # Are we spamming alerts?
                 # Check if any servers have gone down in the the last X minutes
-                # FIXME If any have gone down, send report
+                # If any have gone down, send report
                 logging.info('SENDING REPORT')
                 email_alerts.email_actions.generate_report()
             else:
