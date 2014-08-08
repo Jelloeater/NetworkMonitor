@@ -174,10 +174,17 @@ class modes(object):  # Uses new style classes
             self.server_list = db_helpers.monitor_list.get_server_list()
             # Gets server list on each refresh, in-case of updates
             logging.debug(self.server_list)
+            # Send each row of monitor_list to logic gate
             for i in self.server_list:
                 server_logger(i, sleep_delay=self.sleep_delay, alert_timeout=self.alert_timeout,
                               host_timeout=self.host_timeout).check_server_status()
-                # Send each row of monitor_list to logic gate
+
+            if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout:  # Are we spamming alerts?
+                # FIXME Check if any servers have gone down in the the last X minutes
+
+                # FIXME If any have gone down, send report
+                # email_alerts.email_actions.send_alert(self)
+                email_alerts.email_actions.generate_report()
             self.sleep()
 
 
@@ -218,9 +225,7 @@ class server_logger(modes):
         """ Core logic for driving program """
         db_helpers.monitor_list.log_service_down(self)
         last_email = db_helpers.email_log.email_sent_x_minutes_ago()
-        logging.debug(last_email)
-        if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout:  # Alert logic
-            email_alerts.email_actions.send_alert(self)
+        logging.debug('Last e-mail sent: ' + str(last_email) + '  Timeout: ' + str(self.alert_timeout))
 
 if __name__ == "__main__":
     main()

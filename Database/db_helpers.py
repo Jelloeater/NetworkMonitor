@@ -50,6 +50,11 @@ class monitor_list(object):
         return db_fetch
 
     @staticmethod
+    def get_time_from_last_failure():
+        pass
+        # FIXME Should return the tiem from last failure
+
+    @staticmethod
     def log_service_down(server_logger_obj):
         """ Takes error and logs list to db with timestamp """
 
