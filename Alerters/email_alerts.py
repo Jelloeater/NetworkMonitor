@@ -33,15 +33,9 @@ class email_actions():
 
 
     @staticmethod
-    def generate_report(number_of_days=7):
-        conn, cur = db_controller.db_access().open_connection()
-        # FIXME Rewrite table query
-        # query = '''SELECT * FROM player_activity WHERE "Time_Stamp" >= (now() - '{0} day'::INTERVAL);'''
-        # cur.execute(query.format(number_of_days))
-        data = cur.fetchall()
-        db_controller.db_access.close_connection(conn, cur)
-        logging.debug('DB dump')
-        logging.debug(data)
+    def generate_report():
+        """ Created report of all fails since last email was sent """
+        fail_list = db_helpers.server_stats.failures_in_x_minutes_ago(db_helpers.email_log.email_sent_x_minutes_ago())
 
 
         # noinspection PyListCreation

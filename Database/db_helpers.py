@@ -10,6 +10,13 @@ __author__ = 'Jesse'
 from Database import db_controller
 
 
+class server_stats(object):
+    @staticmethod
+    def failures_in_x_minutes_ago(last_x_minutes_of_failures):
+        """ Returns list of failures from variable"""
+        pass
+
+
 class email_log(object):
     @staticmethod
     def log_email_sent(to_list):

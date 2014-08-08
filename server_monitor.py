@@ -18,6 +18,7 @@ from Monitors import network
 from Database import db_monitor_list
 
 from Alerters import email_controller
+from Alerters import email_alerts
 
 
 __author__ = "Jesse S"
@@ -191,7 +192,7 @@ class modes(object):  # Uses new style classes
                 # Check if any servers have gone down in the the last X minutes
                 # FIXME If any have gone down, send report
                 logging.debug('SENDING REPORT')
-                # email_alerts.email_actions.generate_report()
+                email_alerts.email_actions.generate_report()
                 logging.debug('BREAKPOINT')
 
             self.sleep()
@@ -228,11 +229,12 @@ class server_logger(modes):
         if up_down_flag is False:
             self.server_down_actions()
         else:
-            logging.info(self.sl_host + ' is UP')
+            logging.info(self.sl_host + ' -  ' + str(self.sl_port) + ' is UP')
 
     def server_down_actions(self):
         """ Core logic for driving program """
         db_helpers.monitor_list.log_service_down(self)
+        # TODO FEATURE: Add special alert for critical systems (need to add column to monitor_list)
 
 
 if __name__ == "__main__":
