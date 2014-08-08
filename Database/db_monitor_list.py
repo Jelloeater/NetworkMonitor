@@ -13,7 +13,7 @@ def check_for_valid_service_type():
     # TODO Make sure web addresses are complete ex http://www.google.com
 
 
-def list_servers():
+def get_print_server_list():
     x = db_helpers.monitor_list.get_server_list()
     print("Servers:")
     print("{0}{1}{2}{3}{4}".format("Index".ljust(8), "Hostname".ljust(50), "Port".ljust(8),
@@ -37,10 +37,10 @@ def list_servers():
     return x  # Return the list, should come in handy
 
 
-def main():
+def config_monitor_list():
     # TODO Write TUI for configuring servers (should use db_helpers.monitor_list.tcp/host/url.create/etc)
     while True:
-        server_list = list_servers()
+        server_list = get_print_server_list()
         print("")
         print('Menu Options')
         print("1\t Add Server")

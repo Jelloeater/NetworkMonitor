@@ -15,10 +15,10 @@ from time import sleep
 from Database import db_controller
 from Database import db_helpers
 from Monitors import network
-from Database import monitor_list_config
+from Database import db_monitor_list
 
-from Alerters import report_generator
-from Alerters import email
+from Alerters import email_alerts
+from Alerters import email_controller
 
 
 __author__ = "Jesse S"
@@ -121,10 +121,10 @@ def main():
 
     # Arg Logic here
     if args.list:
-        monitor_list_config.list_servers()
+        db_monitor_list.get_print_server_list()
 
     if args.config_monitors:
-        monitor_list_config.main()
+        db_monitor_list.config_monitor_list()
 
     if args.config_db:
         db_controller.db_helper().configure()
@@ -133,17 +133,18 @@ def main():
         db_controller.db_helper().clear_password_store()
 
     if args.config_email:
-        email.send_gmail().configure()
+        email_controller.send_gmail().configure()
 
     if args.rm_email_pass_store:
-        email.send_gmail().clear_password_store()
+        email_controller.send_gmail().clear_password_store()
 
     # Magic starts here
     if args.generate_report:
         db_controller.db_helper().test_db_setup()
         logging.debug('Testing login')
-        email.send_gmail().test_login()
-        # report_generator.reports.generate_report()  #TODO Re-add report generator
+        email_controller.send_gmail().test_login()
+        # report_generator.reports.generate_report()
+        # #TODO Re-add report generator
 
     if args.monitor:
         mode.multi_server()
@@ -188,6 +189,7 @@ class server_logger(modes):
         self.sl_host = monitor_row[1]
         self.sl_port = monitor_row[2]
         self.sl_service_type = monitor_row[3]
+        self.sl_note = monitor_row[4]
 
     def check_server_status(self):
         """ Picks either TCP, Ping host, or check web, depending on args """
@@ -215,9 +217,10 @@ class server_logger(modes):
     def server_down_actions(self):
         """ Core logic for driving program """
         db_helpers.monitor_list.log_service_down(self)
-
-        if db_helpers.email_log.email_sent_x_minutes_ago() < self.alert_timeout: # Report logic
-            report_generator.reports.generate_report()
+        last_email = db_helpers.email_log.email_sent_x_minutes_ago()
+        logging.debug(last_email)
+        if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout:  # Alert logic
+            email_alerts.email_actions.send_alert(self)
 
 if __name__ == "__main__":
     main()
