@@ -36,7 +36,35 @@ class email_actions():
     def generate_report():
         """ Created report of all fails since last email was sent """
         fail_list = db_helpers.server_stats.failures_in_x_minutes_ago(db_helpers.email_log.email_sent_x_minutes_ago())
+        server_list = db_helpers.monitor_list.get_server_list()
 
+        fail_list_txt = []
+
+        for i in fail_list:
+            host_name = None
+            try:
+                host_name = str(i[2]).split(':')[0]
+                port = str(i[2]).split(':')[1]
+                fail_list_txt.append('\nHost: ' + host_name)
+                fail_list_txt.append('\nPort: ' + port)
+            except IndexError:
+                # For Hosts with no port
+                host_name = str(i[2])
+                fail_list_txt.append('\nHost: ' + host_name)
+
+            fail_list_txt.append('\nService: ' + i[3])
+            fail_list_txt.append('\nTime: ' + str(i[1]))
+
+            # Look up note if present
+            try:
+                note_txt = str([x[4] for x in server_list if x[1] == host_name][0])
+            except IndexError:
+                note_txt = ''
+
+            fail_list_txt.append('\nNote: ' + note_txt)
+            fail_list_txt.append('\n')
+
+        logging.debug('BREAKPOINT')
 
         # noinspection PyListCreation
         msg = ['The First Line: \n\n']  # Email Message Body
