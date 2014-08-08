@@ -16,13 +16,23 @@ def check_for_valid_service_type():
 def list_servers():
     x = db_helpers.monitor_list.get_server_list()
     print("Servers:")
-    print("{0}{1}{2}{3}".format("Index".ljust(8), "Hostname".ljust(50), "Port".ljust(8),
-                                "Service".ljust(0), "Note".ljust(0)))
-    # TODO Fix formatting
+    print("{0}{1}{2}{3}{4}".format("Index".ljust(8), "Hostname".ljust(50), "Port".ljust(8),
+                                   "Service".ljust(10), "Note".ljust(0)))
 
+    # TODO There's got to be a better way of doing this
     for i in x:
-        print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str(i[2]).ljust(8),
-                                       i[3].ljust(8), str(i[4]).ljust(10))
+        if i[2] is None and i[4] is None:
+            print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str("").ljust(8),
+                                           i[3].ljust(10), str("").ljust(0))
+        if i[2] is not None and i[4] is None:
+            print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str(i[2]).ljust(8),
+                                           i[3].ljust(10), str("").ljust(0))
+        if i[2] is None and i[4] is not None:
+            print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str("").ljust(8),
+                                           i[3].ljust(10), str(i[4]).ljust(0))
+        if i[2] is not None and i[4] is not None:
+            print "{0}{1}{2}{3}{4}".format(str(i[0]).ljust(8), i[1].ljust(50), str(i[2]).ljust(8),
+                                           i[3].ljust(10), str(i[4]).ljust(0))
 
     return x  # Return the list, should come in handy
 
