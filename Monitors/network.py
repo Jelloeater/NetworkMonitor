@@ -51,7 +51,7 @@ class MonitorTCP():
         ps = PortScanner()
         scan = ps.scan(hosts=self.host, ports=self.port, arguments='--host-timeout ' + str(self.timeout) + 's')
         try:
-            if scan['scan'][str(self.host)]['tcp'][str(self.port)]['state'] == 'open':
+            if scan['scan'][str(self.host)]['tcp'][int(self.port)]['state'] == 'open':
                 return True
             else:
                 return False

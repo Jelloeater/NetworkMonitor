@@ -17,7 +17,6 @@ from Database import db_helpers
 from Monitors import network
 from Database import db_monitor_list
 
-from Alerters import email_alerts
 from Alerters import email_controller
 
 
@@ -179,12 +178,22 @@ class modes(object):  # Uses new style classes
                 server_logger(i, sleep_delay=self.sleep_delay, alert_timeout=self.alert_timeout,
                               host_timeout=self.host_timeout).check_server_status()
 
-            if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout:  # Are we spamming alerts?
-                # FIXME Check if any servers have gone down in the the last X minutes
+            last_email = db_helpers.email_log.email_sent_x_minutes_ago()
+            last_fail = db_helpers.monitor_list.get_time_from_last_failure()
+            logging.debug('\n' +
+                          'Last e-mail sent: ' + str(last_email) + '\n' +
+                          'Timeout: ' + str(self.alert_timeout) + '\n' +
+                          'Last Failure: ' + str(last_fail) + '\n')
 
+            if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout \
+                    > db_helpers.monitor_list.get_time_from_last_failure():
+                # Are we spamming alerts?
+                # Check if any servers have gone down in the the last X minutes
                 # FIXME If any have gone down, send report
-                # email_alerts.email_actions.send_alert(self)
-                email_alerts.email_actions.generate_report()
+                logging.debug('SENDING REPORT')
+                # email_alerts.email_actions.generate_report()
+                logging.debug('BREAKPOINT')
+
             self.sleep()
 
 
@@ -224,8 +233,7 @@ class server_logger(modes):
     def server_down_actions(self):
         """ Core logic for driving program """
         db_helpers.monitor_list.log_service_down(self)
-        last_email = db_helpers.email_log.email_sent_x_minutes_ago()
-        logging.debug('Last e-mail sent: ' + str(last_email) + '  Timeout: ' + str(self.alert_timeout))
+
 
 if __name__ == "__main__":
     main()

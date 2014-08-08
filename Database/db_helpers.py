@@ -51,8 +51,16 @@ class monitor_list(object):
 
     @staticmethod
     def get_time_from_last_failure():
-        pass
-        # FIXME Should return the tiem from last failure
+        """ Returns how many minutes ago there was a failure logged """
+        conn, cur = db_controller.db_access().open_connection()
+        cur.execute(
+            'SELECT time_stamp FROM server_stats ORDER BY time_stamp DESC LIMIT 1')
+        then = cur.fetchone()[0]
+        db_controller.db_access.close_connection(conn, cur)
+        now = datetime.now()
+        diff = (now - then)
+        day_seconds = diff.days * 24 * 60 * 60  # Converts diff.days into seconds
+        return float(day_seconds + diff.seconds) / 60  # Returns total diff in minutes
 
     @staticmethod
     def log_service_down(server_logger_obj):
