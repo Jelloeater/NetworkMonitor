@@ -1,5 +1,3 @@
-
-import logging
 from unittest import TestCase
 
 __author__ = 'Jesse Laptop'
@@ -7,6 +5,7 @@ __author__ = 'Jesse Laptop'
 from db_helpers import email_log
 
 import logging
+
 logging.basicConfig(format="[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(lineno)s)",
                     level=logging.DEBUG)
 

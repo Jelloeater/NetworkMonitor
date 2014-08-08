@@ -1,6 +1,8 @@
 from unittest import TestCase
+
 import db_helpers
 import report_generator
+
 
 __author__ = 'Jesse Laptop'
 
