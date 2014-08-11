@@ -87,17 +87,19 @@ class email_actions():
                                                                   "Service".ljust(w_sr), "Note".ljust(w_no)),
                          '\n' + '-' * width + '\n']
 
-        host_name_fail_event = ''
-        port = '0'
+        #
         # Beginning of item in list
         for fail_event in fail_list_in:
+            host_name_fail_event = ''
+            port = ''
+
             try:
                 # Try to parse port from hostname address
                 # (should still work even if host is removed from monitor_list)
                 if fail_event[3] != 'url':
                     host_name_fail_event = str(fail_event[2]).split(':')[0]  # 127.0.0.1:80
                     port = str(fail_event[2]).split(':')[1]
-                elif fail_event[3] == 'url':
+                if fail_event[3] == 'url':
                     host_name_fail_event, port = email_actions.parse_url_info(fail_event[2])
             except IndexError:
                 host_name_fail_event = str(fail_event[2])  # 127.0.0.1
@@ -123,7 +125,7 @@ class email_actions():
                         note_txt = monitor_item[4]
                         break
                 if monitor_item_type == 'url':
-                    host_name_parse, port = email_actions.parse_url_info(monitor_item_host)
+                    host_name_parse = email_actions.parse_url_info(monitor_item_host)
                     if host_name_parse == host_name_fail_event:
                         note_txt = monitor_item[4]
                         break
@@ -132,11 +134,6 @@ class email_actions():
                 note_txt = ''
 
             fail_list_txt.append(
-                "| {0} | {1} | {2} | {3} | {4} |".format(time_stamp.ljust(w_ts), host_name_fail_event.ljust(w_hn),
-                                                         port.ljust(w_p), service.ljust(w_sr),
-                                                         note_txt.ljust(w_no)))
-
-            logging.debug(
                 "| {0} | {1} | {2} | {3} | {4} |".format(time_stamp.ljust(w_ts), host_name_fail_event.ljust(w_hn),
                                                          port.ljust(w_p), service.ljust(w_sr),
                                                          note_txt.ljust(w_no)))
