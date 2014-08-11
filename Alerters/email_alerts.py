@@ -9,6 +9,9 @@ __author__ = 'Jesse Laptop'
 
 
 class email_actions():
+    def __init__(self):
+        pass
+
     @staticmethod
     def send_alert(server_info_object):
 
@@ -54,6 +57,7 @@ class email_actions():
 
         msg.append('\n\nReport Generated @ ' + str(datetime.now()))
         logging.debug('\n' + ''.join(msg))
+        logging.debug('BREAKPOINT')
         # email_controller.send_gmail().send(subject=subj, text=''.join(msg))
         # FIXME Re-enable when done
 
@@ -72,6 +76,10 @@ class email_actions():
                                                                   "Port".ljust(w_p),
                                                                   "Service".ljust(w_sr), "Note".ljust(w_no)),
                          '\n' + '-' * width + '\n']
+
+        host_name = ''
+        port = 0
+        # Beginning of item in list
         for fail_event in fail_list_in:
             try:
                 # Try to parse port from hostname address
@@ -79,47 +87,43 @@ class email_actions():
                 if fail_event[3] != 'url':
                     host_name = str(fail_event[2]).split(':')[0]  # 127.0.0.1:80
                     port = str(fail_event[2]).split(':')[1]
-                else:
+                elif fail_event[3] == 'url':
                     try:
                         host_name = str(fail_event[2]).split(':')[1].strip('/')  # http://www.x.com:8080
                         port = str(fail_event[2]).split(':')[2]
                     except IndexError:
-                        host_name = str(fail_event[2])
+                        host_name = str(fail_event[2])  # http://www.google.com
                         port = ''
             except IndexError:
-                host_name = str(fail_event[2])
+                host_name = str(fail_event[2])  # 127.0.0.1
                 port = ''
 
             service = fail_event[3]
             time_stamp = str(fail_event[1])
 
+            # FIXME but it works fine for traditional urls (http://www.google.com)
             # FIXME The issue we are having is that the host name that has been parsed out (127.0.0.1),
             # FIXME is not being matched with the host name in the monitor list (https://127.0.0.1:808)
-            # FIXME but it works fine for traditional urls (http://www.google.com)
-
-            if fail_event[3] == 'url':
-                # Look up host in monitor list
-                pass
 
             try:
                 # Try to find note in
                 note_txt = ''
-                for x in monitor_list_in:
-                    if x[1] == host_name:
-                        note_txt = x[4]
+                for monitor_item in monitor_list_in:
+                    if monitor_item[1] == host_name:
+                        note_txt = monitor_item[4]
                         logging.debug('BREAK')
                         # note_txt = str([x[4] for x in monitor_list_in if x[1] == host_name][0])
             except IndexError:
                 note_txt = ''
-
-            logging.debug('BREAK')
 
             fail_list_txt.append(
                 "| {0} | {1} | {2} | {3} | {4} |".format(time_stamp.ljust(w_ts), host_name.ljust(w_hn),
                                                          port.ljust(w_p), service.ljust(w_sr),
                                                          note_txt.ljust(w_no)))
             fail_list_txt.append('\n')
+            # End of item in list
 
+        # End of list
         fail_list_txt.append('-' * width + '\n', )
         logging.debug('BREAKPOINT')
         return ''.join(fail_list_txt)
