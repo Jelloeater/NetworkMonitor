@@ -62,6 +62,16 @@ class email_actions():
         # FIXME Re-enable when done
 
     @staticmethod
+    def parse_url_info(url_in):
+        try:
+            host_name = str(url_in).split(':')[1].strip('/')  # http://|www.x.com|:|8080|
+            port = str(url_in).split(':')[2]
+        except IndexError:
+            host_name = str(url_in)  # http://www.google.com
+            port = ''
+        return host_name, port
+
+    @staticmethod
     def generate_fail_table(fail_list_in, monitor_list_in):
         w_ts = 25
         w_hn = 50
@@ -77,25 +87,20 @@ class email_actions():
                                                                   "Service".ljust(w_sr), "Note".ljust(w_no)),
                          '\n' + '-' * width + '\n']
 
-        host_name = ''
-        port = 0
+        host_name_fail_event = ''
+        port = '0'
         # Beginning of item in list
         for fail_event in fail_list_in:
             try:
                 # Try to parse port from hostname address
                 # (should still work even if host is removed from monitor_list)
                 if fail_event[3] != 'url':
-                    host_name = str(fail_event[2]).split(':')[0]  # 127.0.0.1:80
+                    host_name_fail_event = str(fail_event[2]).split(':')[0]  # 127.0.0.1:80
                     port = str(fail_event[2]).split(':')[1]
                 elif fail_event[3] == 'url':
-                    try:
-                        host_name = str(fail_event[2]).split(':')[1].strip('/')  # http://www.x.com:8080
-                        port = str(fail_event[2]).split(':')[2]
-                    except IndexError:
-                        host_name = str(fail_event[2])  # http://www.google.com
-                        port = ''
+                    host_name_fail_event, port = email_actions.parse_url_info(fail_event[2])
             except IndexError:
-                host_name = str(fail_event[2])  # 127.0.0.1
+                host_name_fail_event = str(fail_event[2])  # 127.0.0.1
                 port = ''
 
             service = fail_event[3]
@@ -105,19 +110,34 @@ class email_actions():
             # FIXME The issue we are having is that the host name that has been parsed out (127.0.0.1),
             # FIXME is not being matched with the host name in the monitor list (https://127.0.0.1:808)
 
-            try:
-                # Try to find note in
-                note_txt = ''
-                for monitor_item in monitor_list_in:
-                    if monitor_item[1] == host_name:
+            # Try to find note in
+            note_txt = ''
+            for monitor_item in monitor_list_in:
+                monitor_item_host = monitor_item[1]
+                monitor_item_type = monitor_item[3]
+
+                # TODO Need to pare out host_name if url
+                # monitor_item[4] = 'url'  # TYPE CHECK
+                if monitor_item_type != 'url':
+                    if monitor_item_host == host_name_fail_event:
                         note_txt = monitor_item[4]
-                        logging.debug('BREAK')
-                        # note_txt = str([x[4] for x in monitor_list_in if x[1] == host_name][0])
-            except IndexError:
+                        break
+                if monitor_item_type == 'url':
+                    host_name_parse, port = email_actions.parse_url_info(monitor_item_host)
+                    if host_name_parse == host_name_fail_event:
+                        note_txt = monitor_item[4]
+                        break
+
+            if note_txt is None:
                 note_txt = ''
 
             fail_list_txt.append(
-                "| {0} | {1} | {2} | {3} | {4} |".format(time_stamp.ljust(w_ts), host_name.ljust(w_hn),
+                "| {0} | {1} | {2} | {3} | {4} |".format(time_stamp.ljust(w_ts), host_name_fail_event.ljust(w_hn),
+                                                         port.ljust(w_p), service.ljust(w_sr),
+                                                         note_txt.ljust(w_no)))
+
+            logging.debug(
+                "| {0} | {1} | {2} | {3} | {4} |".format(time_stamp.ljust(w_ts), host_name_fail_event.ljust(w_hn),
                                                          port.ljust(w_p), service.ljust(w_sr),
                                                          note_txt.ljust(w_no)))
             fail_list_txt.append('\n')
