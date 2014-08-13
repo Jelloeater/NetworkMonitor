@@ -211,6 +211,7 @@ class db_helper(db_access):
 
     def test_db_setup(self):
         """ Gets run on startup """
+        logging.debug('Testing DB Setup')
         logging.debug(db_settings.__dict__)
         logging.debug('DB Password= ' +
                       keyring.get_password(SettingsHelper.KEYRING_APP_ID, db_settings.USERNAME))

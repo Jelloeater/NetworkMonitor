@@ -1,22 +1,24 @@
 # NetworkMonitor
 Monitor Network Services and Status, Send Alerts, and Log Data to a DB. Neat and Easy.
-Comes in three parts:
+Comes in three sections:
 
 -   A monitor
--   A report generator (should be scheduled using cron or a similar service).
--   A database front end (for configuring monitoring lists)
+-   A report generator (that can also be scheduled externally).
+-   A database TUI front end (for configuring monitoring lists)
 
 ## Setup
-Configure a PostgreSQL Server with remote DB access (if you just want to use localhost, then skip this). 
-
-Setup each application via command line (look at email and db arg groups).
-
-For ease of use (on a secure network), you should use the root postgreSQL account (postgres).
-
-Also don't forget to configure e-mail for the report generator.
+-   Configure a PostgreSQL Server with remote DB access (if you just want to use localhost, then skip this). 
+-   Setup each application via command line (look at email and db arg groups).
+-   For ease of use (on a secure network), you should use the root postgreSQL account (postgres).
+-   Also don't forget to configure e-mail for the report generator.
+-   Add hosts to the monitoring list via the TUI.
 
 ## Usage
-For help just run with -h
+-   Setup first
+-   Run with -m
+-   Feel sad when services go down.
+-   Feel happy when they go back up.
+-   For help just run with -h
 
 ## Licence
 See Licence file
