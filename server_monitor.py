@@ -143,7 +143,7 @@ def main():
         db_controller.db_helper().test_db_setup()
         logging.debug('Testing login')
         email_controller.send_gmail().test_login()
-        # report_generator.reports.generate_report()
+        email_alerts.email_actions.generate_report()
         # #TODO Re-add report generator
 
     if args.monitor:
