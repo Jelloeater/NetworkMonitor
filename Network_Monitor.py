@@ -192,8 +192,9 @@ class modes(object):  # Uses new style classes
                 # Are we spamming alerts?
                 # Check if any servers have gone down in the the last X minutes
                 # If any have gone down, send report
-                logging.info('SENDING REPORT')
-                email_alerts.email_actions.generate_report()
+                if email_controller.send_gmail().test_login():
+                    logging.info('SENDING REPORT')
+                    email_alerts.email_actions.generate_report()
             else:
                 logging.info('E-mail timeout still cooling off')
 
