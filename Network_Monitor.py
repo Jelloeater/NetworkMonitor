@@ -23,10 +23,10 @@ from Alerters import email_alerts
 
 __author__ = "Jesse S"
 __license__ = "GNU GPL v2.0"
-__version__ = "1.2"
+__version__ = "1.5"
 __email__ = "jelloeater@gmail.com"
 
-LOG_FILENAME = "serverMonitor.log"
+LOG_FILENAME = "NetworkMonitor.log"
 
 
 def main():
@@ -144,9 +144,10 @@ def main():
         logging.debug('Testing login')
         email_controller.send_gmail().test_login()
         email_alerts.email_actions.generate_report()
-        # #TODO Re-add report generator
 
     if args.monitor:
+        db_controller.db_helper().test_db_setup()
+        email_controller.send_gmail().test_login()
         mode.multi_server()
 
 
