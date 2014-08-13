@@ -137,7 +137,6 @@ class db_helper(db_access):
             logging.warn('email_log already exists')
         db_access.close_connection(conn, cur)
 
-
         # Generates valid_types table for foreign key constraints
         logging.warning('Creating (' + 'valid_types' + ') table')
         DDL_Query = '''
@@ -204,8 +203,6 @@ class db_helper(db_access):
         except pg8000.errors.ProgrammingError:
             logging.warn('monitor_list already has foreign key')
         db_access.close_connection(conn, cur)
-
-
 
         # TODO Execute on first run
 

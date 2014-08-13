@@ -47,7 +47,7 @@ def main():
 
     report_group = parser.add_argument_group('Actions')
     report_group.add_argument("-g",
-                              "--generate_report",
+                              "--generate_report_flag",
                               help="Generate Weekly Report",
                               action="store_true")
 
@@ -139,11 +139,12 @@ def main():
         email_controller.send_gmail().clear_password_store()
 
     # Magic starts here
-    if args.generate_report:
+    if args.generate_report_flag:
         db_controller.db_helper().test_db_setup()
-        logging.debug('Testing login')
         email_controller.send_gmail().test_login()
         email_alerts.email_actions.generate_report()
+        print('*NOTE: If report is empty, that just means nothing has failed since we sent an email, '
+              'run -m to "fix" it*')
 
     if args.monitor:
         db_controller.db_helper().test_db_setup()
