@@ -4,6 +4,7 @@ import logging
 import os
 import smtplib  # For Authentication Error
 import sys
+import urllib2
 
 from Database import db_helpers
 import gmail
@@ -51,13 +52,30 @@ class send_gmail(object, SettingsHelper):
         self.PASSWORD = keyring.get_password(self.KEYRING_APP_ID, self.USERNAME)  # Loads password from secure storage
 
     def test_login(self):
-        logging.debug(str(self.USERNAME) + str(self.PASSWORD))
+        """ Tests both if gmail is reachable, and if the login info is correct """
+        http_response_code = 404
         try:
+            http_response_code = urllib2.urlopen('http://www.gmail.com', timeout=15).code
+        except urllib2.URLError:
+            logging.critical('Cannot reach Gmail')
+
+        if http_response_code == 200:
+            response_flag = True
+        else:
+            response_flag = False
+
+        try:
+            logging.debug(str(self.USERNAME) + str(self.PASSWORD))
             gmail.GMail(username=self.USERNAME, password=self.PASSWORD)
+            login_flag = True
         except smtplib.SMTPAuthenticationError:
-            logging.critical('Bad gmail login info')
+            logging.critical('Bad gmail login info, cannot send messages, exiting')
             sys.exit(1)
-        # FIXME Rewrite test method for login check
+
+        if login_flag and response_flag:
+            return True
+        else:
+            return False
 
     def send(self, subject, text):
         logging.info("Sending email")

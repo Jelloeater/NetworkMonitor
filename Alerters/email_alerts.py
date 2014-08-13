@@ -58,8 +58,7 @@ class email_actions():
         msg.append('\n\nReport Generated @ ' + str(datetime.now()))
         logging.debug('\n' + ''.join(msg))
         logging.debug('BREAKPOINT')
-        # email_controller.send_gmail().send(subject=subj, text=''.join(msg))
-        # FIXME Re-enable when done
+        email_controller.send_gmail().send(subject=subj, text=''.join(msg))
 
     @staticmethod
     def parse_url_info(url_in):
