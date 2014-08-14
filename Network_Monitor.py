@@ -76,15 +76,15 @@ def main():
                         "--delay",
                         action="store",
                         type=int,
-                        default=60,
-                        help="Wait x second between checks (60)")
+                        default=600,
+                        help="Wait x second between checks (10 min)")
 
     parser.add_argument("-a",
                         "--alert_timeout",
                         action="store",
                         type=int,
-                        default=15,
-                        help="Wait x minutes between alerts (15)")
+                        default=60,
+                        help="Wait x minutes between alerts (1 hr)")
 
     parser.add_argument("-t",
                         "--host_timeout",
@@ -139,7 +139,7 @@ def main():
     if args.generate_report_flag:
         db_controller.db_helper().test_db_setup()
         email_controller.send_gmail().test_login()
-        email_alerts.email_actions.generate_report()
+        generate_report()
         print('*NOTE: If report is empty, that just means nothing has failed since we sent an email, '
               'run -m to "fix" it*')
 
@@ -180,8 +180,8 @@ class modes(object):  # Uses new style classes
             last_email = db_helpers.email_log.email_sent_x_minutes_ago()
             last_fail = db_helpers.monitor_list.get_time_from_last_failure()
             logging.debug(
-                'Last e-mail sent: ' + str(last_email) + 'Timeout: ' + str(self.alert_timeout) +
-                'Last Failure: ' + str(last_fail))
+                'Last e-mail sent: ' + str(last_email) + '  Timeout: ' + str(self.alert_timeout) +
+                '  Last Failure: ' + str(last_fail))
 
             if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout \
                     > db_helpers.monitor_list.get_time_from_last_failure():

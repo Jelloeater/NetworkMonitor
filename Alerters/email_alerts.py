@@ -36,31 +36,6 @@ class email_actions():
 
 
     @staticmethod
-    def generate_report():
-        """ Created report of all fails since last email was sent """
-
-        # Start message creation here
-        fail_list = db_helpers.server_stats.failures_in_x_minutes_ago(
-            db_helpers.email_log.email_sent_x_minutes_ago())
-
-        monitor_list = db_helpers.monitor_list.get_server_list()
-
-        subj = "Server Status Report - # of failures: " + str(len(fail_list))
-        # noinspection PyListCreation
-        msg = []  # Email Message Body
-        msg.append('Failure report: \n')
-        msg.append('# of failures: ' + str(len(fail_list)) + '\n')
-        msg.append('# of services monitored: ' + str(len(monitor_list)) + '\n')
-
-        # Calls the fail table generator above
-        msg.append(email_actions.generate_fail_table(fail_list, monitor_list))
-
-        msg.append('\n\nReport Generated @ ' + str(datetime.now()))
-        logging.debug('\n' + ''.join(msg))
-        logging.debug('BREAKPOINT')
-        email_controller.send_gmail().send(subject=subj, text=''.join(msg))
-
-    @staticmethod
     def parse_url_info(url_in):
         try:
             host_name = str(url_in).split(':')[1].strip('/')  # http://|www.x.com|:|8080|
@@ -139,3 +114,49 @@ class email_actions():
         fail_list_txt.append('-' * width + '\n', )
         logging.debug('BREAKPOINT')
         return ''.join(fail_list_txt)
+
+    @staticmethod
+    def generate_report():
+        """ Created report of all fails since last email was sent """
+
+        # Start message creation here
+        fail_list = db_helpers.server_stats.failures_in_x_minutes_ago(
+            db_helpers.email_log.email_sent_x_minutes_ago())
+
+        monitor_list = db_helpers.monitor_list.get_server_list()
+
+        unique_failed_monitors = list(set([x[2] for x in fail_list]))
+
+        subj = "Server Status Report - # of failures: " + str(len(unique_failed_monitors))
+        # noinspection PyListCreation
+        msg = []  # Email Message Body
+        msg.append('Failure report- \n')
+        msg.append('# of failures: ' + str(len(fail_list)) + '\n')
+        msg.append('# of services monitored: ' + str(len(monitor_list)) + '\n')
+        msg.append('# of services failed: ' + str(len(unique_failed_monitors)) + '\n\n')
+
+        msg.append('-' * 70 + '\n')
+        msg.append('| Failed Servers / Services: \n')
+        for i in unique_failed_monitors:
+            msg.append('| ' + str(i) + '\n')
+        msg.append('-' * 70 + '\n\n')
+
+        # Calls the fail table generator above
+        msg.append(email_actions.generate_fail_table(fail_list, monitor_list))
+
+        msg.append("\nMonitored Servers / Services:" +
+                   '\n' + '-' * 98 + '\n' + "| {0} | {1} | {2} | {3} |".format("Hostname".ljust(35), "Port".ljust(10),
+                                                                               "Service".ljust(15),
+                                                                               "Note".ljust(17 + 8)) +
+                   '\n' + '-' * 98 + '\n')
+        for i in monitor_list:
+            msg.append("| {0} | {1} | {2} | {3} |".format(str(i[1]).ljust(35), str(i[2]).ljust(10),
+                                                          str(i[3]).ljust(15), str(i[4]).ljust(17 + 8)), )
+            msg.append('\n')
+        msg.append('-' * 98)
+        # FIXME Create nice looking table
+
+        msg.append('\n\nReport Generated @ ' + str(datetime.now()))
+        logging.debug('\n' + ''.join(msg))
+        logging.debug('BREAKPOINT')
+        # email_controller.send_gmail().send(subject=subj, text=''.join(msg))
