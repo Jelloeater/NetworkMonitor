@@ -33,8 +33,6 @@ class email_log(object):
 
     @staticmethod
     def email_sent_x_minutes_ago():
-        #TODO Deal with empty table use case
-
         try:
             conn, cur = db_controller.db_access().open_connection()
             cur.execute(

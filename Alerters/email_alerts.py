@@ -107,10 +107,6 @@ class email_actions():
             service = fail_event[3]
             time_stamp = str(fail_event[1])
 
-            # FIXME but it works fine for traditional urls (http://www.google.com)
-            # FIXME The issue we are having is that the host name that has been parsed out (127.0.0.1),
-            # FIXME is not being matched with the host name in the monitor list (https://127.0.0.1:808)
-
             # Try to find note in
             note_txt = ''
             for monitor_item in monitor_list_in:

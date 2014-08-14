@@ -53,26 +53,30 @@ class send_gmail(object, SettingsHelper):
 
     def test_login(self):
         """ Tests both if gmail is reachable, and if the login info is correct """
-        # FIXME Come up with better way to check for gmail being up
-        logging.debug('Testing login')
+        logging.debug('Testing site access')
         http_response_code = 404
         try:
-            http_response_code = urllib2.urlopen('http://www.google.com', timeout=3).code
+            http_response_code = urllib2.urlopen('http://www.gmail.com').code
         except urllib2.URLError:
-            logging.critical('Cannot reach Gmail')
+            pass
 
         if http_response_code == 200:
             response_flag = True
         else:
             response_flag = False
+            logging.error('Cannot reach gmail.com')
 
-        try:
-            logging.debug(str(self.USERNAME) + str(self.PASSWORD))
-            gmail.GMail(username=self.USERNAME, password=self.PASSWORD)
-            login_flag = True
-        except smtplib.SMTPAuthenticationError:
-            logging.critical('Bad gmail login info, cannot send messages, exiting')
-            sys.exit(1)
+        logging.debug('Testing login')
+        if response_flag:
+            try:
+                logging.debug(str(self.USERNAME) + str(self.PASSWORD))
+                gmail.GMail(username=self.USERNAME, password=self.PASSWORD)
+                login_flag = True
+            except smtplib.SMTPAuthenticationError:
+                logging.critical('Bad gmail login info, cannot send messages, exiting')
+                sys.exit(1)
+        else:
+            login_flag = False
 
         if login_flag and response_flag:
             return True

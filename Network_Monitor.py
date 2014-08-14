@@ -35,14 +35,11 @@ def main():
                                                  " (http://github.com/Jelloeater/NetworkMonitor)",
                                      version=__version__,
                                      epilog="Please specify action")
+
     multi_server_group = parser.add_argument_group('Multi Server Mode')
     multi_server_group.add_argument("-m",
                                     "--monitor",
                                     help="Multi server watch mode",
-                                    action="store_true")
-    multi_server_group.add_argument("-e",
-                                    "--editServerList",
-                                    help="Edit the server watch list",
                                     action="store_true")
 
     report_group = parser.add_argument_group('Actions')
@@ -80,21 +77,21 @@ def main():
                         action="store",
                         type=int,
                         default=60,
-                        help="Wait x second between checks")
+                        help="Wait x second between checks (60)")
 
     parser.add_argument("-a",
                         "--alert_timeout",
                         action="store",
                         type=int,
                         default=15,
-                        help="Wait x minutes between alerts")
+                        help="Wait x minutes between alerts (15)")
 
     parser.add_argument("-t",
                         "--host_timeout",
                         action="store",
                         type=int,
                         default=10,
-                        help="Wait x seconds for failure")
+                        help="Wait x seconds for failure (10)")
 
     parser.add_argument("--debug",
                         action="store_true",
@@ -159,7 +156,6 @@ class modes(object):  # Uses new style classes
         self.host_timeout = host_timeout
         self.server_list = []
 
-        # TODO Load server List from JSON
 
     def sleep(self):
         try:

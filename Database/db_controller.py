@@ -79,7 +79,6 @@ class db_helper(db_access):
     # db = postgresql.open(user = 'usename', database = 'datname', port = 5432)
     # http://python.projects.pgfoundry.org/docs/1.1/
 
-    # TODO Maybe implement other mail providers
     def __init__(self):
         super(db_helper, self).__init__()
 
