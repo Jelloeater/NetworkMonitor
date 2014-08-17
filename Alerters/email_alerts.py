@@ -135,15 +135,19 @@ class email_actions():
         msg.append('# of services monitored: ' + str(len(monitor_list)) + '\n')
         msg.append('# of services failed: ' + str(len(unique_failed_monitors)) + '\n\n')
 
+        # Generates list of failed services
         msg.append('-' * 70 + '\n')
-        msg.append('| Failed Servers / Services: \n')
+        msg.append("| {0} |".format(str('Failed Servers').ljust(66)) + '\n')
+        msg.append('-' * 70 + '\n')
         for i in unique_failed_monitors:
-            msg.append('| ' + str(i) + '\n')
+            msg.append("| {0} |".format(str(i).ljust(66)))
+            msg.append('\n')
         msg.append('-' * 70 + '\n\n')
 
-        # Calls the fail table generator above
-        msg.append(email_actions.generate_fail_table(fail_list, monitor_list))
+        # Generates log of failures
+        msg.append(email_actions.generate_fail_table(fail_list, monitor_list))  # Calls the fail table generator above
 
+        # Generates table of monitored services
         msg.append("\nMonitored Servers / Services:" +
                    '\n' + '-' * 98 + '\n' + "| {0} | {1} | {2} | {3} |".format("Hostname".ljust(35), "Port".ljust(10),
                                                                                "Service".ljust(15),
@@ -159,4 +163,4 @@ class email_actions():
         msg.append('\n\nReport Generated @ ' + str(datetime.now()))
         logging.debug('\n' + ''.join(msg))
         logging.debug('BREAKPOINT')
-        # email_controller.send_gmail().send(subject=subj, text=''.join(msg))
+        email_controller.send_gmail().send(subject=subj, text=''.join(msg))
